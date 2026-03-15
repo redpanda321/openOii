@@ -11,7 +11,7 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
 
-from app.api.deps import get_app_settings, get_db_session, get_ws_manager
+from app.api.deps import get_app_settings, get_db_session, get_ws_manager, require_admin
 from app.config import Settings
 from app.main import create_app
 from app.models import agent_run, message, project  # noqa: F401
@@ -73,9 +73,13 @@ async def app(test_session: AsyncSession, test_settings: Settings, ws_manager: S
     async def override_get_ws() -> StubWsManager:
         return ws_manager
 
+    async def override_require_admin() -> None:
+        return None
+
     app.dependency_overrides[get_db_session] = override_get_session
     app.dependency_overrides[get_app_settings] = override_get_settings
     app.dependency_overrides[get_ws_manager] = override_get_ws
+    app.dependency_overrides[require_admin] = override_require_admin
     return app
 
 

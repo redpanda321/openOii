@@ -6,6 +6,10 @@ from fastapi.testclient import TestClient
 from app.config import Settings
 from app.main import app
 
+from app.api.deps import require_admin
+
+app.dependency_overrides[require_admin] = lambda: None
+
 client = TestClient(app)
 
 

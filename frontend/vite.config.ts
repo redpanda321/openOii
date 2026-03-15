@@ -38,13 +38,7 @@ export default defineConfig({
     // 设置 chunk 大小警告阈值
     chunkSizeWarningLimit: 1000,
     // 启用压缩
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // 生产环境移除 console
-        drop_debugger: true,
-      },
-    },
+    minify: 'esbuild',
     // 启用源码映射（仅用于错误追踪）
     sourcemap: false,
   },

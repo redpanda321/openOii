@@ -90,8 +90,8 @@ async def test_generate_chat_completions(monkeypatch):
 
     monkeypatch.setattr(service, "_post_json_with_retry", fake_post)
 
-    text = await service.generate(prompt="hi")
-    assert text == "hello"
+    response = await service.generate(prompt="hi")
+    assert response.text == "hello"
 
 
 @pytest.mark.asyncio
@@ -114,8 +114,8 @@ async def test_generate_completions(monkeypatch):
 
     monkeypatch.setattr(service, "_post_json_with_retry", fake_post)
 
-    text = await service.generate(prompt="hi")
-    assert text == "hello"
+    response = await service.generate(prompt="hi")
+    assert response.text == "hello"
 
 
 @pytest.mark.asyncio
@@ -144,7 +144,7 @@ async def test_stream_chat_completions_sse(monkeypatch):
 
     parts: list[str] = []
     async for part in service.stream(prompt="hi"):
-        parts.append(part)
+        parts.append(part.get("text", "") if isinstance(part, dict) and part.get("type") == "text" else "")
 
     assert "".join(parts) == "hello"
     assert client.last_json is not None
@@ -175,7 +175,7 @@ async def test_stream_completions_sse(monkeypatch):
 
     parts: list[str] = []
     async for part in service.stream(prompt="hi"):
-        parts.append(part)
+        parts.append(part.get("text", "") if isinstance(part, dict) and part.get("type") == "text" else "")
 
     assert "".join(parts) == "hello"
     assert client.last_json is not None
@@ -393,7 +393,7 @@ async def test_sse_done_with_whitespace(monkeypatch):
 
     parts: list[str] = []
     async for part in service.stream(prompt="hi"):
-        parts.append(part)
+        parts.append(part.get("text", "") if isinstance(part, dict) and part.get("type") == "text" else "")
 
     assert "".join(parts) == "hello"
 
@@ -1292,8 +1292,8 @@ async def test_generate_with_temperature(monkeypatch):
 
     monkeypatch.setattr(service, "_post_json_with_retry", fake_post)
 
-    text = await service.generate(prompt="hi", temperature=0.7)
-    assert text == "hello"
+    response = await service.generate(prompt="hi", temperature=0.7)
+    assert response.text == "hello"
 
 
 @pytest.mark.asyncio
@@ -1314,7 +1314,7 @@ async def test_stream_with_temperature(monkeypatch):
 
     parts = []
     async for part in service.stream(prompt="hi", temperature=0.8):
-        parts.append(part)
+        parts.append(part.get("text", "") if isinstance(part, dict) and part.get("type") == "text" else "")
 
     assert "".join(parts) == "hello"
 
@@ -1339,7 +1339,7 @@ async def test_stream_chunk_empty_choices(monkeypatch):
 
     parts = []
     async for part in service.stream(prompt="hi"):
-        parts.append(part)
+        parts.append(part.get("text", "") if isinstance(part, dict) and part.get("type") == "text" else "")
 
     assert "".join(parts) == "hello"
 
@@ -1364,7 +1364,7 @@ async def test_stream_chunk_not_list_choices(monkeypatch):
 
     parts = []
     async for part in service.stream(prompt="hi"):
-        parts.append(part)
+        parts.append(part.get("text", "") if isinstance(part, dict) and part.get("type") == "text" else "")
 
     assert "".join(parts) == "hello"
 

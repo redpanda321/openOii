@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 
-from app.api.deps import SettingsDep
+from app.api.deps import AdminDep, SettingsDep
 from app.config import Settings
 from app.schemas.text import TextGenerateRequest, TextGenerateResponse
 from app.services.text import TextService
@@ -15,6 +15,7 @@ router = APIRouter(prefix="/text", tags=["text"])
 async def generate_text(
     payload: TextGenerateRequest,
     settings: Settings = SettingsDep,
+    _: None = AdminDep,
 ):
     """生成文本（非流式）"""
     service = TextService(settings)
@@ -40,6 +41,7 @@ async def generate_text(
 async def stream_text(
     payload: TextGenerateRequest,
     settings: Settings = SettingsDep,
+    _: None = AdminDep,
 ):
     """生成文本（流式）"""
     service = TextService(settings)

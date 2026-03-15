@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.agents.orchestrator import GenerationOrchestrator
-from app.api.deps import SessionDep, SettingsDep, WsManagerDep
+from app.api.deps import AdminDep, SessionDep, SettingsDep, WsManagerDep
 from app.config import Settings
 from app.db.session import async_session_maker
 from app.models.agent_run import AgentMessage, AgentRun
@@ -27,6 +27,7 @@ async def generate_project(
     session: AsyncSession = SessionDep,
     settings: Settings = SettingsDep,
     ws: ConnectionManager = WsManagerDep,
+    _: None = AdminDep,
 ):
     project = await session.get(Project, project_id)
     if not project:
@@ -107,6 +108,7 @@ async def feedback_project(
     session: AsyncSession = SessionDep,
     settings: Settings = SettingsDep,
     ws: ConnectionManager = WsManagerDep,
+    _: None = AdminDep,
 ):
     project = await session.get(Project, project_id)
     if not project:

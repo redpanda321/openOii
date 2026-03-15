@@ -80,7 +80,7 @@ async def list_configs(session: AsyncSession = SessionDep):
 async def reveal_value(
     payload: RevealValueRequest,
     session: AsyncSession = SessionDep,
-    # _: None = AdminDep,  # 开发环境暂时禁用，生产环境应启用
+    _: None = AdminDep,
 ):
     """获取敏感配置的真实值（用于前端显示）"""
     service = ConfigService(session)
@@ -93,7 +93,7 @@ async def reveal_value(
 async def update_configs(
     payload: ConfigUpdateRequest,
     session: AsyncSession = SessionDep,
-    # _: None = AdminDep,  # 开发环境暂时禁用，生产环境应启用
+    _: None = AdminDep,
 ):
     service = ConfigService(session)
     result = await service.upsert_configs(payload.configs)
@@ -112,7 +112,7 @@ async def update_configs(
 @router.post("/test-connection", response_model=TestConnectionResponse)
 async def test_connection(
     payload: TestConnectionRequest,
-    # _: None = AdminDep,  # 开发环境暂时禁用，生产环境应启用
+    _: None = AdminDep,
 ):
     """测试服务连接"""
     settings = get_settings()

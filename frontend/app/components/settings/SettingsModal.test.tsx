@@ -120,15 +120,15 @@ describe('SettingsModal', () => {
       expect(screen.getByDisplayValue('redis://localhost:6379/0')).toBeInTheDocument();
     }, { timeout: 3000 });
 
-    // 点击 LLM 服务标签（使用 role 查找）
+    // 点击文本生成标签（使用 role 查找）
     const tabs = screen.getAllByRole('tab');
-    const llmTab = tabs.find(tab => tab.textContent?.includes('LLM 服务'));
-    expect(llmTab).toBeDefined();
+    const textTab = tabs.find(tab => tab.textContent?.includes('文本生成'));
+    expect(textTab).toBeDefined();
 
-    if (llmTab) {
-      await user.click(llmTab);
+    if (textTab) {
+      await user.click(textTab);
       // 验证标签页切换（检查是否有 accent 背景色）
-      expect(llmTab).toHaveClass('bg-accent');
+      expect(textTab).toHaveClass('bg-accent');
     }
   });
 

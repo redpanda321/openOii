@@ -32,7 +32,7 @@ export function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <Suspense fallback={<LoadingOverlay message="加载中..." />}>
+          <Suspense fallback={<LoadingOverlay text="加载中..." />}>
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/projects" element={<ProjectsPage />} />
