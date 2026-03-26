@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap') layer(fonts);
+@import './tokens.css';
 
 @tailwind base;
 @tailwind components;
@@ -9,8 +10,46 @@
    @apply bg-base-100 text-base-content min-h-screen font-sans;
   }
 
+ /* 主题切换平滑过渡 */
+ * {
+   transition-property: background-color, border-color, color, fill, stroke;
+   transition-duration: 200ms;
+   transition-timing-function: ease-in-out;
+  }
+
+ /* 排除动画元素的主题过渡 */
+ *[class*="animate-"],
+ *[class*="transition-"] {
+   transition-property: none;
+  }
+
  h1, h2, h3, h4, h5, h6 {
    @apply font-heading;
+  }
+
+ /* Skip to Content 链接样式 */
+ .sr-only {
+   position: absolute;
+   width: 1px;
+   height: 1px;
+   padding: 0;
+   margin: -1px;
+   overflow: hidden;
+   clip: rect(0, 0, 0, 0);
+   white-space: nowrap;
+   border-width: 0;
+  }
+
+ .sr-only:focus,
+ .focus\:not-sr-only:focus {
+   position: static;
+   width: auto;
+   height: auto;
+   padding: inherit;
+   margin: inherit;
+   overflow: visible;
+   clip: auto;
+   white-space: normal;
   }
 }
 
@@ -27,16 +66,19 @@
  .btn-doodle {
    @apply border-3 border-base-content/30 rounded-lg shadow-brutal font-bold uppercase tracking-wide transition-all duration-150;
   }
- .btn-doodle:hover {
+ .btn-doodle:hover:not(:disabled) {
    @apply shadow-brutal-hover -translate-x-0.5 -translate-y-0.5;
   }
- .btn-doodle:active {
+ .btn-doodle:active:not(:disabled) {
    @apply shadow-none translate-x-1 translate-y-1;
+  }
+ .btn-doodle:disabled {
+   @apply cursor-not-allowed;
   }
 
  /* 涂鸦风格输入框 */
  .input-doodle {
-   @apply border-3 border-base-content/30 rounded-lg bg-base-100 outline-none focus:border-primary;
+   @apply border-3 border-base-content/30 rounded-lg bg-base-100 outline-none focus:border-primary transition-colors;
   }
 
  /* 手绘下划线效果 */
@@ -62,6 +104,21 @@
     content: "";
    @apply absolute -inset-2 border-2 border-dashed border-secondary rounded-full opacity-50;
   }
+
+ /* 文本截断工具类 */
+ .line-clamp-2 {
+   display: -webkit-box;
+   -webkit-line-clamp: 2;
+   -webkit-box-orient: vertical;
+   overflow: hidden;
+  }
+
+ .line-clamp-3 {
+   display: -webkit-box;
+   -webkit-line-clamp: 3;
+   -webkit-box-orient: vertical;
+   overflow: hidden;
+  }
 }
 
 @layer utilities {
@@ -73,6 +130,7 @@
  /* 抖动动画 */
  .animate-wiggle {
     animation: wiggle 0.3s ease-in-out infinite;
+    will-change: transform;
   }
 
  @keyframes wiggle {
@@ -82,18 +140,64 @@
 
  /* 弹跳进入 */
  .animate-bounce-in {
-    animation: bounce-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    animation: bounce-in 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform, opacity;
   }
 
  @keyframes bounce-in {
-    0% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
+    0% { transform: scale(0) rotate(-5deg); opacity: 0; }
+    60% { transform: scale(1.05) rotate(2deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+ /* 手绘描边动画 */
+ .animate-draw-in {
+    animation: draw-in 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform, opacity;
+  }
+
+ @keyframes draw-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.8) rotate(-3deg);
+      filter: blur(4px);
+    }
+    50% {
+      opacity: 0.5;
+      transform: scale(1.02) rotate(1deg);
+      filter: blur(2px);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+      filter: blur(0);
+    }
+  }
+
+ /* 涂鸦浮现 */
+ .animate-doodle-pop {
+    animation: doodle-pop 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform, opacity;
+  }
+
+ @keyframes doodle-pop {
+    0% {
+      transform: scale(0) rotate(-12deg);
+      opacity: 0;
+    }
+    70% {
+      transform: scale(1.08) rotate(3deg);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
   }
 
  /* 水平弹跳动画 */
  .animate-bounce-x {
     animation: bounce-x 1s infinite;
+    will-change: transform;
   }
 
  @keyframes bounce-x {
@@ -103,7 +207,8 @@
 
  /* 淡入动画 */
  .animate-fade-in {
-    animation: fade-in 0.3s ease-out;
+    animation: fade-in 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: opacity, transform;
   }
 
  @keyframes fade-in {
@@ -114,10 +219,12 @@
  /* 消息滑入动画 */
  .animate-slide-in-left {
     animation: slide-in-left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: opacity, transform;
   }
 
  .animate-slide-in-right {
     animation: slide-in-right 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: opacity, transform;
   }
 
  @keyframes slide-in-left {
@@ -133,12 +240,42 @@
  /* 进度条闪光效果 */
  .animate-shimmer {
     animation: shimmer 2s infinite;
+    will-change: opacity;
   }
 
  @keyframes shimmer {
     0% { opacity: 0; }
     50% { opacity: 1; }
     100% { opacity: 0; }
+  }
+
+ /* 成功庆祝动画 */
+ .animate-success-celebration {
+    animation: success-celebration 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+  }
+
+ @keyframes success-celebration {
+    0% { transform: scale(1); }
+    25% { transform: scale(1.1) rotate(5deg); }
+    50% { transform: scale(0.95) rotate(-5deg); }
+    75% { transform: scale(1.05) rotate(3deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+ /* 脉冲高亮 */
+ .animate-pulse-highlight {
+    animation: pulse-highlight 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+ @keyframes pulse-highlight {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(var(--color-primary-rgb), 0); }
+    50% { box-shadow: 0 0 0 8px rgba(var(--color-primary-rgb), 0.3); }
+  }
+
+ /* 触摸目标最小尺寸 */
+ .touch-target {
+   @apply min-w-[44px] min-h-[44px];
   }
 }
 

@@ -20,10 +20,10 @@ export function Toast({ toast }: ToastProps) {
   }, [toast.id, toast.duration, removeToast]);
 
   const typeStyles = {
-    success: "border-l-[#51CF66]",
-    error: "border-l-[#FF6B6B]",
-    warning: "border-l-[#FFD93D]",
-    info: "border-l-[#74C0FC]",
+    success: "border-success",
+    error: "border-error",
+    warning: "border-warning",
+    info: "border-info",
   };
 
   return (

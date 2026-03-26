@@ -22,7 +22,7 @@ from app.models.project import Character, Project, Shot
 from app.schemas.project import GenerateRequest
 from app.services.file_cleaner import delete_file, delete_files
 from app.services.image import ImageService
-from app.services.llm import LLMService
+from app.services.text_factory import create_text_service
 from app.services.video_factory import create_video_service
 from app.ws.manager import ConnectionManager
 
@@ -428,7 +428,7 @@ class GenerationOrchestrator:
                 ws=self.ws,
                 project=project,
                 run=run,
-                llm=LLMService(self.settings),
+                llm=create_text_service(self.settings),
                 image=ImageService(self.settings),
                 video=create_video_service(self.settings),
             )

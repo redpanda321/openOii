@@ -88,7 +88,7 @@ async def test_full_workflow(monkeypatch, test_session, test_settings):
     async def _noop_clear(_: int) -> None:
         return None
 
-    monkeypatch.setattr(orchestrator_mod, "LLMService", StubLLM)
+    monkeypatch.setattr(orchestrator_mod, "create_text_service", lambda settings: StubLLM(settings))
     monkeypatch.setattr(orchestrator_mod, "ImageService", StubImage)
     monkeypatch.setattr(orchestrator_mod, "create_video_service", lambda settings: StubVideo(settings))
     monkeypatch.setattr(orchestrator_mod, "clear_confirm_event_redis", _noop_clear)

@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "accent" | "ghost" | "error";
@@ -15,10 +15,13 @@ export function Button({
   className,
   children,
   disabled,
+  onClick,
   ...props
 }: ButtonProps) {
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const baseStyles = "btn-doodle font-heading cursor-pointer";
-  
+
   const variantStyles = {
     primary: "bg-primary text-primary-content hover:bg-primary/90",
     secondary: "bg-secondary text-secondary-content hover:bg-secondary/90",
@@ -33,17 +36,35 @@ export function Button({
     lg: "px-7 py-3 text-lg",
   };
 
+  const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (isProcessing || loading || disabled) return;
+
+    // 防止重复点击
+    setIsProcessing(true);
+
+    try {
+      await onClick?.(e);
+    } finally {
+      // 延迟恢复，防止快速连击
+      setTimeout(() => setIsProcessing(false), 300);
+    }
+  };
+
+  const isDisabled = disabled || loading || isProcessing;
+
   return (
     <button
       className={clsx(
         baseStyles,
         variantStyles[variant],
         sizeStyles[size],
+        "touch-target", // 确保触摸目标尺寸
         loading && "loading",
-        disabled && "opacity-50 cursor-not-allowed",
+        isDisabled && "opacity-50 cursor-not-allowed",
         className
       )}
-      disabled={disabled || loading}
+      disabled={isDisabled}
+      onClick={handleClick}
       {...props}
     >
       {loading ? <span className="loading loading-spinner loading-sm" /> : children}

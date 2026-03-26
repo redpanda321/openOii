@@ -130,10 +130,10 @@ export function SettingsModal() {
       title: "数据库",
       desc: "数据库和 Redis 连接配置"
     },
-    llm: {
+    text: {
       icon: <SparklesIcon className="w-4 h-4" />,
-      title: "LLM 服务",
-      desc: "Claude / Anthropic API 配置"
+      title: "文本生成",
+      desc: "文本生成服务配置，支持 Anthropic 和 OpenAI 兼容接口"
     },
     image: {
       icon: <PhotoIcon className="w-4 h-4" />,
@@ -148,6 +148,11 @@ export function SettingsModal() {
   };
 
   const activeSection = sections.find(s => s.key === activeTab);
+
+  // 获取当前文本服务提供商
+  const getTextProvider = () => {
+    return (formState['TEXT_PROVIDER'] || formState['text_provider'] || 'anthropic') as string;
+  };
 
   // 获取当前视频服务提供商
   const getVideoProvider = () => {
@@ -181,6 +186,111 @@ export function SettingsModal() {
       </p>
     </div>
   );
+
+  // 渲染文本服务配置（特殊处理）
+  const renderTextSection = () => {
+    if (!activeSection || activeTab !== 'text') return null;
+
+    const textProvider = getTextProvider();
+
+    // 分离配置项
+    const providerItem = activeSection.items.find(i => i.key.toLowerCase() === 'text_provider');
+    const anthropicItems = activeSection.items.filter(i =>
+      i.key.toLowerCase().startsWith('anthropic_')
+    );
+    const openaiItems = activeSection.items.filter(i =>
+      i.key.toLowerCase().startsWith('text_') &&
+      i.key.toLowerCase() !== 'text_provider'
+    );
+
+    return (
+      <div className="space-y-6">
+        {/* 分类描述 */}
+        <div className="flex items-center gap-2 text-sm text-info bg-info/10 px-4 py-2 rounded-lg border border-info/30">
+          <InformationCircleIcon className="w-4 h-4 shrink-0" />
+          <span>{tabConfig[activeTab]?.desc}</span>
+        </div>
+
+        {/* 服务提供商选择 */}
+        {providerItem && (
+          <div className="bg-base-200 p-4 rounded-lg border-2 border-black">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="font-mono font-bold text-sm">TEXT_PROVIDER</span>
+              <span className="badge badge-primary badge-xs">必选</span>
+            </div>
+            <div className="flex gap-4">
+              <label className={`
+                flex-1 flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                ${textProvider === 'anthropic'
+                  ? 'border-accent bg-accent/10'
+                  : 'border-black hover:bg-base-300'
+                }
+              `}>
+                <input
+                  type="radio"
+                  name="TEXT_PROVIDER"
+                  value="anthropic"
+                  checked={textProvider === 'anthropic'}
+                  onChange={handleInputChange}
+                  className="radio radio-accent"
+                />
+                <div>
+                  <div className="font-bold">Anthropic Claude</div>
+                  <div className="text-xs text-base-content/60">Claude Agent SDK，推荐使用</div>
+                </div>
+              </label>
+              <label className={`
+                flex-1 flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                ${textProvider === 'openai'
+                  ? 'border-accent bg-accent/10'
+                  : 'border-black hover:bg-base-300'
+                }
+              `}>
+                <input
+                  type="radio"
+                  name="TEXT_PROVIDER"
+                  value="openai"
+                  checked={textProvider === 'openai'}
+                  onChange={handleInputChange}
+                  className="radio radio-accent"
+                />
+                <div>
+                  <div className="font-bold">OpenAI 兼容</div>
+                  <div className="text-xs text-base-content/60">支持任何 OpenAI 兼容接口</div>
+                </div>
+              </label>
+            </div>
+          </div>
+        )}
+
+        {/* Anthropic 配置 */}
+        {textProvider === 'anthropic' && anthropicItems.length > 0 && (
+          <div className="space-y-4">
+            <h4 className="font-bold text-sm flex items-center gap-2 text-accent">
+              <SparklesIcon className="w-4 h-4" />
+              Anthropic Claude 配置
+            </h4>
+            <div className="space-y-4 pl-4 border-l-2 border-accent/30">
+              {anthropicItems.map(renderConfigItem)}
+            </div>
+          </div>
+        )}
+
+        {/* OpenAI 兼容配置 */}
+        {textProvider === 'openai' && openaiItems.length > 0 && (
+          <div className="space-y-4">
+            <h4 className="font-bold text-sm flex items-center gap-2 text-accent">
+              <SparklesIcon className="w-4 h-4" />
+              OpenAI 兼容接口配置
+            </h4>
+            <div className="space-y-4 pl-4 border-l-2 border-accent/30">
+              {openaiItems.map(renderConfigItem)}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // 渲染视频服务配置（特殊处理）
   const renderVideoSection = () => {
@@ -305,7 +415,7 @@ export function SettingsModal() {
 
   // 渲染普通配置项列表
   const renderNormalSection = () => {
-    if (!activeSection || activeTab === 'video') return null;
+    if (!activeSection || activeTab === 'video' || activeTab === 'text') return null;
 
     return (
       <div className="space-y-4">
@@ -400,7 +510,9 @@ export function SettingsModal() {
 
             {/* 标签页内容 */}
             <div className="flex-1 overflow-y-auto p-6">
-              {activeTab === 'video' ? renderVideoSection() : renderNormalSection()}
+              {activeTab === 'text' ? renderTextSection() :
+               activeTab === 'video' ? renderVideoSection() :
+               renderNormalSection()}
             </div>
 
             {/* 底部操作栏 */}
@@ -500,6 +612,13 @@ function getConfigDescription(key: string): string {
     ANTHROPIC_AUTH_TOKEN: "中转站 Token（国内推荐使用）",
     ANTHROPIC_BASE_URL: "API 基础地址（官方或中转站地址）",
     ANTHROPIC_MODEL: "Claude 模型名称，如 claude-sonnet-4-5-20250929",
+
+    // 文本生成服务
+    TEXT_PROVIDER: "文本生成服务提供商：anthropic（Claude）/ openai（OpenAI 兼容）",
+    TEXT_BASE_URL: "文本生成服务地址（OpenAI 兼容接口）",
+    TEXT_API_KEY: "文本生成 API 密钥（OpenAI 兼容）",
+    TEXT_MODEL: "文本生成模型名称（OpenAI 兼容），如 gpt-4o-mini",
+    TEXT_ENDPOINT: "文本生成 API 端点路径（OpenAI 兼容）",
 
     // 图像服务
     IMAGE_BASE_URL: "图像生成服务地址（OpenAI 兼容接口）",

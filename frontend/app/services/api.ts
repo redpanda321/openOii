@@ -9,12 +9,35 @@ const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:18765";
  */
 export function getStaticUrl(path: string | null | undefined): string | null {
   if (!path) return null;
-  // 如果已经是完整 URL，直接返回
-  if (path.startsWith("http://") || path.startsWith("https://")) {
-    return path;
+
+  // 安全检查：防止 XSS 和协议注入
+  const trimmedPath = path.trim();
+
+  // 只允许 http/https 协议
+  if (trimmedPath.startsWith("http://") || trimmedPath.startsWith("https://")) {
+    try {
+      const url = new URL(trimmedPath);
+      // 验证协议
+      if (url.protocol !== "http:" && url.protocol !== "https:") {
+        console.warn(`[Security] Invalid protocol in URL: ${url.protocol}`);
+        return null;
+      }
+      return trimmedPath;
+    } catch (e) {
+      console.warn(`[Security] Invalid URL format: ${trimmedPath}`);
+      return null;
+    }
   }
+
+  // 阻止危险协议
+  const dangerousProtocols = ["javascript:", "data:", "vbscript:", "file:", "about:"];
+  if (dangerousProtocols.some(proto => trimmedPath.toLowerCase().startsWith(proto))) {
+    console.warn(`[Security] Dangerous protocol detected: ${trimmedPath}`);
+    return null;
+  }
+
   // 拼接 API_BASE
-  return `${API_BASE}${path}`;
+  return `${API_BASE}${trimmedPath}`;
 }
 
 async function fetchApi<T>(

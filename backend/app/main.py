@@ -127,14 +127,29 @@ def create_app() -> FastAPI:
                         run_id = msg.get("data", {}).get("run_id")
                         feedback = msg.get("data", {}).get("feedback")
                         if run_id:
-                            if isinstance(feedback, str) and feedback.strip():
-                                content = feedback.strip()
-                                from app.db.session import async_session_maker
-                                from app.models.agent_run import AgentMessage
-                                from app.models.message import Message
+                            # 验证 run_id 是否属于当前 project_id（防止跨项目操控）
+                            from app.db.session import async_session_maker
+                            from app.models.agent_run import AgentMessage, AgentRun
+                            from app.models.message import Message
 
-                                try:
-                                    async with async_session_maker() as session:
+                            try:
+                                async with async_session_maker() as session:
+                                    run = await session.get(AgentRun, run_id)
+                                    if not run or run.project_id != project_id:
+                                        await ws_manager.send_event(
+                                            project_id,
+                                            {
+                                                "type": "error",
+                                                "data": {
+                                                    "code": "WS_INVALID_RUN",
+                                                    "message": "无效的 run_id 或不属于当前项目",
+                                                },
+                                            },
+                                        )
+                                        continue
+
+                                    if isinstance(feedback, str) and feedback.strip():
+                                        content = feedback.strip()
                                         session.add(
                                             AgentMessage(
                                                 run_id=run_id,
@@ -156,18 +171,19 @@ def create_app() -> FastAPI:
                                     # 确保 feedback 保存完成后再触发 confirm
                                     # 添加短暂延迟让 orchestrator 的 session 能读取到新数据
                                     await asyncio.sleep(0.1)
-                                except Exception as e:
-                                    logger.error(f"Failed to save feedback for run {run_id}: {e}")
-                                    await ws_manager.send_event(
-                                        project_id,
-                                        {
-                                            "type": "error",
-                                            "data": {
-                                                "code": "WS_SAVE_ERROR",
-                                                "message": "保存反馈失败",
-                                            },
+                            except Exception as e:
+                                logger.error(f"Failed to save feedback for run {run_id}: {e}")
+                                await ws_manager.send_event(
+                                    project_id,
+                                    {
+                                        "type": "error",
+                                        "data": {
+                                            "code": "WS_SAVE_ERROR",
+                                            "message": "保存反馈失败",
                                         },
-                                    )
+                                    },
+                                )
+                                continue
                             await trigger_confirm_redis(run_id)
                 except WebSocketDisconnect:
                     logger.info(f"WebSocket disconnected for project {project_id}")

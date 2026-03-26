@@ -33,12 +33,12 @@ class TestExtractJson:
 
     def test_no_json_raises(self):
         text = "This is just plain text without any JSON"
-        with pytest.raises(ValueError, match="未找到 JSON"):
+        with pytest.raises(ValueError, match="未找到有效的 JSON 对象"):
             extract_json(text)
 
     def test_array_raises(self):
         text = '[1, 2, 3]'
-        with pytest.raises(ValueError, match="未找到 JSON 对象"):
+        with pytest.raises(ValueError, match="未找到有效的 JSON 对象"):
             extract_json(text)
 
 

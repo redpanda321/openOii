@@ -1,0 +1,83 @@
+/**
+ * Design Tokens
+ * Centralized design values for consistent theming
+ */
+
+@layer base {
+  :root {
+    /* Semantic Colors - Toast/Alert States */
+    --color-success: #51CF66;
+    --color-error: #FF6B6B;
+    --color-warning: #FFD93D;
+    --color-info: #74C0FC;
+
+    /* Spacing Scale */
+    --space-xs: 0.25rem;  /* 4px */
+    --space-sm: 0.5rem;   /* 8px */
+    --space-md: 1rem;     /* 16px */
+    --space-lg: 1.5rem;   /* 24px */
+    --space-xl: 2rem;     /* 32px */
+    --space-2xl: 3rem;    /* 48px */
+
+    /* Border Widths */
+    --border-thin: 2px;
+    --border-medium: 3px;
+    --border-thick: 4px;
+
+    /* Touch Targets */
+    --touch-target-min: 44px;
+
+    /* Animation Durations */
+    --duration-fast: 150ms;
+    --duration-normal: 200ms;
+    --duration-slow: 300ms;
+
+    /* Z-Index Scale */
+    --z-dropdown: 10;
+    --z-sticky: 20;
+    --z-fixed: 30;
+    --z-modal-backdrop: 40;
+    --z-modal: 50;
+    --z-popover: 60;
+    --z-tooltip: 70;
+  }
+}
+
+/* Utility Classes for Design Tokens */
+@layer utilities {
+  /* Semantic Color Borders */
+  .border-success {
+    border-color: var(--color-success);
+  }
+
+  .border-error {
+    border-color: var(--color-error);
+  }
+
+  .border-warning {
+    border-color: var(--color-warning);
+  }
+
+  .border-info {
+    border-color: var(--color-info);
+  }
+
+  /* Touch Target */
+  .touch-target {
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+  }
+
+  /* Brutal Shadow Hover Pattern */
+  .brutal-hover {
+    @apply transition-all duration-200;
+  }
+
+  .brutal-hover:hover {
+    @apply shadow-brutal-lg -translate-x-0.5 -translate-y-0.5;
+  }
+
+  .brutal-hover:active {
+    @apply shadow-brutal translate-x-0 translate-y-0;
+  }
+}

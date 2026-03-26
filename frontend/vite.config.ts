@@ -19,6 +19,39 @@ export default defineConfig({
     strictPort: true,
     host: true,
   },
+  build: {
+    // 代码分割优化
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // 将 React 相关库打包到单独的 chunk
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          // 将状态管理库打包到单独的 chunk
+          'state-vendor': ['zustand', '@tanstack/react-query'],
+          // 将 tldraw 打包到单独的 chunk（较大的库）
+          'tldraw-vendor': ['tldraw'],
+        },
+      },
+    },
+    // 启用 CSS 代码分割
+    cssCodeSplit: true,
+    // 设置 chunk 大小警告阈值
+    chunkSizeWarningLimit: 1000,
+    // 启用压缩
+    minify: 'esbuild',
+    // 启用源码映射（仅用于错误追踪）
+    sourcemap: false,
+  },
+  // 优化依赖预构建
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'zustand',
+      '@tanstack/react-query',
+    ],
+  },
   test: {
     globals: true,
     environment: "jsdom",

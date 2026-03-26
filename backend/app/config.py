@@ -33,7 +33,11 @@ class Settings(BaseSettings):
     redis_url: str = Field(default="redis://localhost:6379/0")
 
     # ============================================
+<<<<<<< HEAD
     # LLM 服务 — 统一多 Provider 配置
+=======
+    # LLM 服务 (Claude Agent SDK - Anthropic)
+>>>>>>> a29f702cb59dad19dffe398b48d86789906219bc
     # ============================================
     llm_provider: str = Field(
         default="anthropic",
@@ -84,6 +88,29 @@ class Settings(BaseSettings):
     @property
     def effective_llm_base_url(self) -> str | None:
         return self.llm_base_url or self.anthropic_base_url
+
+    # ============================================
+    # 文本生成服务
+    # ============================================
+    text_provider: str = Field(
+        default="anthropic",
+        description="文本生成服务提供商：anthropic / openai",
+    )
+
+    # OpenAI 兼容接口
+    text_base_url: str = Field(
+        default="https://api.openai.com/v1",
+        description="文本生成服务基础地址（OpenAI 兼容）",
+    )
+    text_api_key: str | None = None
+    text_model: str = Field(
+        default="gpt-4o-mini",
+        description="文本生成模型名称（OpenAI 兼容）",
+    )
+    text_endpoint: str = Field(
+        default="/chat/completions",
+        description="文本生成 API 端点路径（OpenAI 兼容）",
+    )
 
     # ============================================
     # 图像生成服务 (OpenAI 兼容接口)
@@ -198,6 +225,13 @@ class Settings(BaseSettings):
         headers: dict[str, str] = {"User-Agent": self.app_name}
         if self.video_api_key:
             headers["Authorization"] = f"Bearer {self.video_api_key}"
+        return headers
+
+    def text_headers(self) -> dict[str, str]:
+        """文本服务请求头"""
+        headers: dict[str, str] = {"User-Agent": self.app_name}
+        if self.text_api_key:
+            headers["Authorization"] = f"Bearer {self.text_api_key}"
         return headers
 
     def anthropic_env(self) -> dict[str, Any]:

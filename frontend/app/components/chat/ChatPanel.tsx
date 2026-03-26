@@ -33,22 +33,22 @@ const stageInfo: Record<
 > = {
   ideate: {
     title: "构思阶段",
-    description: "描述你的故事想法，我来帮你创作剧本...",
+    description: "告诉我你的故事创意，我来帮你写剧本",
     icon: LightBulbIcon,
   },
   visualize: {
     title: "可视化阶段",
-    description: "正在设计角色和绘制分镜...",
+    description: "正在设计角色形象和绘制分镜画面",
     icon: PaintBrushIcon,
   },
   animate: {
     title: "动画阶段",
-    description: "正在生成视频片段...",
+    description: "正在生成动画视频片段",
     icon: FilmIcon,
   },
   deploy: {
     title: "完成",
-    description: "你的漫剧已经准备好了！",
+    description: "你的漫剧已经生成完毕！",
     icon: RocketLaunchIcon,
   },
 };
@@ -116,14 +116,14 @@ export function ChatPanel({
   return (
     <div className="flex flex-col h-full bg-base-200 rounded-box shadow-lg">
       {/* Stage Header */}
-      <div className="p-4 border-b border-base-300">
-        <h3 className="font-heading font-semibold text-primary mb-1">
+      <div className="p-3 sm:p-4 border-b border-base-300">
+        <h3 className="font-heading font-semibold text-primary mb-1 text-sm sm:text-base">
           <span className="inline-flex items-center gap-2">
-            <StageIcon className="w-5 h-5" aria-hidden="true" />
+            <StageIcon className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
             {info.title}
           </span>
         </h3>
-        <p className="text-sm text-base-content/80">{info.description}</p>
+        <p className="text-xs sm:text-sm text-base-content/80">{info.description}</p>
 
         {isGenerating && (
           <div className="mt-3">
@@ -142,9 +142,15 @@ export function ChatPanel({
                 )}
               </div>
               {!awaitingConfirm && (
-                <Button size="sm" variant="ghost" onClick={onCancel} className="text-error hover:bg-error/10 gap-1">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={onCancel}
+                  className="text-error hover:bg-error/10 gap-1 min-w-[44px] min-h-[44px]"
+                  aria-label="停止生成"
+                >
                   <StopIcon className="w-5 h-5" aria-hidden="true" />
-                  停止
+                  <span>停止</span>
                 </Button>
               )}
             </div>
@@ -153,22 +159,28 @@ export function ChatPanel({
       </div>
 
       {/* Content Area */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-3 sm:p-4">
         {!hasMessages && !isGenerating ? (
           <div className="flex flex-col h-full">
             <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
-              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <StageIcon className="w-6 h-6 text-primary" aria-hidden="true" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-primary/10 flex items-center justify-center mb-3 sm:mb-4">
+                <StageIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" aria-hidden="true" />
               </div>
-              <h2 className="text-xl font-heading font-bold mb-2">
-                准备好创作你的漫剧了吗？
+              <h2 className="text-lg sm:text-xl font-heading font-bold mb-2">
+                准备好了吗？
               </h2>
-              <p className="text-base-content/80 mb-6 max-w-xs">
-                点击下方按钮，AI 将根据你的故事自动生成剧本、角色和分镜
+              <p className="text-sm sm:text-base text-base-content/80 mb-4 sm:mb-6 max-w-xs">
+                点击下方按钮，AI 会根据你的故事自动生成剧本、角色和分镜
               </p>
-              <Button variant="primary" size="lg" onClick={onGenerate} className="gap-2">
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={onGenerate}
+                className="gap-2 touch-target"
+                aria-label="开始生成漫剧"
+              >
                 <RocketLaunchIcon className="w-5 h-5" aria-hidden="true" />
-                开始生成
+                <span>开始生成</span>
               </Button>
             </div>
           </div>
@@ -179,19 +191,19 @@ export function ChatPanel({
 
 
       {awaitingConfirm && (
-        <div className="p-4 border-t border-base-300 bg-warning/20">
+        <div className="p-3 sm:p-4 border-t border-base-300 bg-warning/20">
           <div className="mb-3">
             <div className="flex items-center gap-2 mb-2">
               <span className="badge badge-warning badge-sm text-warning-content">等待确认</span>
-              <span className="font-medium text-sm">{agentDisplayName} 已完成</span>
+              <span className="font-medium text-xs sm:text-sm">{agentDisplayName} 已完成</span>
             </div>
-            <p className="text-sm text-base-content/80 mb-2">
-              请在右侧预览区查看生成结果，确认满意后点击继续。
+            <p className="text-xs sm:text-sm text-base-content/80 mb-2">
+              请在右侧查看生成结果。满意的话点击下方按钮继续
             </p>
             <p className="text-xs text-base-content/60">
               <span className="inline-flex items-center gap-1">
-                <LightBulbIcon className="w-5 h-5" aria-hidden="true" />
-                如果需要修改，请在下方输入框中描述您的调整意见，然后点击发送。
+                <LightBulbIcon className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
+                需要修改？在下方输入框描述调整意见后点击发送
               </span>
             </p>
           </div>
@@ -203,11 +215,12 @@ export function ChatPanel({
                 onConfirm(feedback || undefined);
                 setInput("");
               }}
-              className="flex-1"
+              className="flex-1 touch-target"
             >
               <span className="inline-flex items-center gap-2">
-                <CheckIcon className="w-5 h-5" aria-hidden="true" />
-                满意，继续下一步
+                <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
+                <span className="hidden sm:inline">满意，继续下一步</span>
+                <span className="sm:hidden">继续</span>
               </span>
             </Button>
           </div>
@@ -215,7 +228,7 @@ export function ChatPanel({
       )}
 
       {/* Input */}
-      <div className="p-4 border-t border-base-300">
+      <div className="p-3 sm:p-4 border-t border-base-300">
         <MessageInput
           value={input}
           onChange={setInput}
@@ -223,10 +236,10 @@ export function ChatPanel({
           disabled={false}
           placeholder={
             awaitingConfirm
-              ? "输入修改意见后点击发送..."
+              ? "输入修改意见..."
               : isGenerating
-                ? "输入反馈或等待完成..."
-                : "输入你的想法或反馈..."
+                ? "输入反馈..."
+                : "输入你的想法..."
           }
         />
       </div>

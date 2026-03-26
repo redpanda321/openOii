@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import ipaddress
+from urllib.parse import urlparse
+
 import httpx
-from fastapi import APIRouter, status
+from fastapi import APIRouter, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import SessionDep
+from app.api.deps import AdminDep, SessionDep
 from app.config import get_settings
 from app.schemas.config import (
     ConfigItemRead,
@@ -20,6 +23,53 @@ from app.services.config_service import ConfigService
 router = APIRouter()
 
 
+def _is_safe_url(url: str) -> bool:
+    """检查 URL 是否安全（不指向私网/本地）"""
+    try:
+        parsed = urlparse(url)
+        if not parsed.scheme or not parsed.hostname:
+            return False
+
+        # 只允许 http/https
+        if parsed.scheme not in {"http", "https"}:
+            return False
+
+        # 检查是否是 IP 地址
+        try:
+            ip = ipaddress.ip_address(parsed.hostname)
+            # 拒绝私网和本地地址
+            if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved:
+                return False
+        except ValueError:
+            # 不是 IP 地址，是域名
+            # 拒绝 localhost 相关域名
+            hostname_lower = parsed.hostname.lower()
+            if hostname_lower in {"localhost", "localhost.localdomain"}:
+                return False
+            if hostname_lower.endswith(".local") or hostname_lower.endswith(".localhost"):
+                return False
+
+        return True
+    except Exception:
+        return False
+
+
+# 允许在 test_connection 中覆盖的配置字段白名单
+_ALLOWED_OVERRIDE_FIELDS = {
+    "anthropic_api_key",
+    "anthropic_base_url",
+    "anthropic_model",
+    "text_api_key",
+    "text_model",
+    "image_api_key",
+    "image_model",
+    "video_api_key",
+    "video_model",
+    "doubao_video_api_key",
+    "doubao_video_model",
+}
+
+
 @router.get("", response_model=list[ConfigItemRead])
 async def list_configs(session: AsyncSession = SessionDep):
     service = ConfigService(session)
@@ -27,7 +77,11 @@ async def list_configs(session: AsyncSession = SessionDep):
 
 
 @router.post("/reveal", response_model=RevealValueResponse)
-async def reveal_value(payload: RevealValueRequest, session: AsyncSession = SessionDep):
+async def reveal_value(
+    payload: RevealValueRequest,
+    session: AsyncSession = SessionDep,
+    _: None = AdminDep,
+):
     """获取敏感配置的真实值（用于前端显示）"""
     service = ConfigService(session)
     value = await service.get_raw_value(payload.key)
@@ -39,6 +93,7 @@ async def reveal_value(payload: RevealValueRequest, session: AsyncSession = Sess
 async def update_configs(
     payload: ConfigUpdateRequest,
     session: AsyncSession = SessionDep,
+    _: None = AdminDep,
 ):
     service = ConfigService(session)
     result = await service.upsert_configs(payload.configs)
@@ -55,12 +110,24 @@ async def update_configs(
 
 
 @router.post("/test-connection", response_model=TestConnectionResponse)
-async def test_connection(payload: TestConnectionRequest):
+async def test_connection(
+    payload: TestConnectionRequest,
+    _: None = AdminDep,
+):
     """测试服务连接"""
     settings = get_settings()
 
     # 如果传递了配置覆盖，创建临时配置对象
     if payload.config_overrides:
+        # 验证字段白名单
+        for key in payload.config_overrides.keys():
+            field_name = key.lower()
+            if field_name not in _ALLOWED_OVERRIDE_FIELDS:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"不允许覆盖配置字段: {key}",
+                )
+
         # 将覆盖值应用到 settings 的副本
         settings_dict = settings.model_dump()
 
@@ -73,6 +140,13 @@ async def test_connection(payload: TestConnectionRequest):
                     continue
                 # 不是脱敏值，使用传递的值
                 if value is not None:
+                    # 如果是 URL 字段，检查安全性
+                    if field_name.endswith("_base_url") and isinstance(value, str):
+                        if not _is_safe_url(value):
+                            raise HTTPException(
+                                status_code=status.HTTP_400_BAD_REQUEST,
+                                detail=f"不安全的 URL: {key}（不允许私网/本地地址）",
+                            )
                     settings_dict[field_name] = value
 
         from app.config import Settings

@@ -41,14 +41,18 @@ export function useProjectWebSocket(projectId: number | null) {
     }
 
     ws.onopen = () => {
-      console.log("[WS] 已连接到项目", projectId);
+      if (import.meta.env.DEV) {
+        console.log("[WS] 已连接到项目", projectId);
+      }
       reconnectAttempts.current = 0;
-      // 如果之前显示了断开提示，现在清除
-      toast.success({
-        title: "连接成功",
-        message: "实时更新已恢复",
-        duration: 2000,
-      });
+      // 只在重连成功时显示提示
+      if (reconnectAttempts.current > 0) {
+        toast.success({
+          title: "重新连接成功",
+          message: "可以继续创作了",
+          duration: 2000,
+        });
+      }
     };
 
     ws.onmessage = (event) => {
@@ -56,21 +60,25 @@ export function useProjectWebSocket(projectId: number | null) {
         const data: WsEvent = JSON.parse(event.data);
         handleWsEvent(data, useEditorStore.getState());
       } catch (e) {
-        console.error("[WS] 解析错误:", e);
+        if (import.meta.env.DEV) {
+          console.error("[WS] 解析错误:", e);
+        }
         toast.error({
-          title: "消息解析失败",
-          message: "收到无效的服务器消息",
+          title: "数据格式错误",
+          message: "服务器返回了无法识别的数据，请刷新页面重试",
           duration: 3000,
         });
       }
     };
 
     ws.onerror = (error) => {
-      console.error("[WS] 连接错误:", error);
+      if (import.meta.env.DEV) {
+        console.error("[WS] 连接错误:", error);
+      }
       toast.error({
-        title: "连接错误",
-        message: "WebSocket 连接出现问题",
-        duration: 0, // 不自动消失
+        title: "无法连接到服务器",
+        message: "请检查网络连接，或稍后重试",
+        duration: 0,
         actions: [
           {
             label: "重新连接",
@@ -84,17 +92,21 @@ export function useProjectWebSocket(projectId: number | null) {
     };
 
     ws.onclose = () => {
-      console.log("[WS] 连接断开");
+      if (import.meta.env.DEV) {
+        console.log("[WS] 连接断开");
+      }
       globalConnections.delete(projectId);
 
       // 自动重连，避免切换页面后连接中断
       if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
         reconnectAttempts.current++;
-        console.log(`[WS] ${RECONNECT_DELAY / 1000}秒后尝试重连 (${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS})`);
+        if (import.meta.env.DEV) {
+          console.log(`[WS] ${RECONNECT_DELAY / 1000}秒后尝试重连 (${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS})`);
+        }
 
         toast.warning({
-          title: "连接已断开",
-          message: `正在尝试重新连接... (${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS})`,
+          title: "连接中断",
+          message: `正在重新连接 (尝试 ${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS})`,
           duration: RECONNECT_DELAY,
         });
 
@@ -102,8 +114,8 @@ export function useProjectWebSocket(projectId: number | null) {
       } else {
         toast.error({
           title: "连接失败",
-          message: "无法连接到服务器，请检查网络或刷新页面",
-          duration: 0, // 不自动消失
+          message: "多次尝试后仍无法连接。请检查网络后刷新页面",
+          duration: 0,
           actions: [
             {
               label: "刷新页面",
@@ -173,7 +185,9 @@ function clearLoadingStates(
 function handleWsEvent(event: WsEvent, store: ReturnType<typeof useEditorStore.getState>) {
   switch (event.type) {
     case "connected":
-      console.log("[WS] 服务器确认连接");
+      if (import.meta.env.DEV) {
+        console.log("[WS] 服务器确认连接");
+      }
       break;
     case "run_started":
       store.setGenerating(true);
@@ -291,7 +305,9 @@ function handleWsEvent(event: WsEvent, store: ReturnType<typeof useEditorStore.g
       break;
     case "error":
       // 处理 WebSocket 错误事件
-      console.error("[WS] 服务器错误:", event.data);
+      if (import.meta.env.DEV) {
+        console.error("[WS] 服务器错误:", event.data);
+      }
       toast.error({
         title: "服务器错误",
         message: (event.data.message as string) || "发生未知错误",

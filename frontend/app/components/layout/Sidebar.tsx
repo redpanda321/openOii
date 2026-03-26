@@ -81,17 +81,27 @@ export function Sidebar() {
       {!isOpen && (
         <button
           onClick={toggle}
-          className="fixed top-4 left-4 z-50 p-2 bg-base-100 border-3 border-black rounded-lg shadow-brutal hover:shadow-brutal-lg hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+          className="fixed top-4 left-4 z-50 p-2 bg-base-100 border-3 border-black rounded-lg shadow-brutal hover:shadow-brutal-lg hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer touch-target"
           title="展开侧边栏"
+          aria-label="展开侧边栏"
         >
           <Bars3Icon className="w-6 h-6" />
         </button>
       )}
 
+      {/* 移动端遮罩层 */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+          onClick={toggle}
+          aria-hidden="true"
+        />
+      )}
+
       {/* 侧边栏 */}
       <aside
         className={`fixed top-0 left-0 h-full bg-base-100 border-r-3 border-black z-40 flex flex-col transition-all duration-300 ease-in-out ${
-          isOpen ? "w-72 translate-x-0" : "w-72 -translate-x-full"
+          isOpen ? "w-full sm:w-80 md:w-72 translate-x-0" : "w-full sm:w-80 md:w-72 -translate-x-full"
         }`}
       >
         {/* 头部 */}
@@ -173,7 +183,7 @@ export function Sidebar() {
             <div className="text-center py-8 text-base-content/50">
               <ChatBubbleLeftRightIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p className="text-sm">还没有项目</p>
-              <p className="text-xs">开始创作你的第一个故事吧！</p>
+              <p className="text-xs">点击上方按钮创作第一个故事</p>
             </div>
           )}
         </div>
@@ -224,7 +234,7 @@ export function Sidebar() {
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleConfirmDelete}
         title="删除项目"
-        message="确定要删除这个项目吗？删除后将无法恢复。"
+        message="删除后无法恢复。确定要删除这个项目吗？"
         confirmText="删除"
         cancelText="取消"
         variant="danger"

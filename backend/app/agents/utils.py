@@ -44,7 +44,20 @@ def extract_json(text: str) -> dict:
     """从 LLM 响应中提取 JSON 对象，支持不完整 JSON 的修复。"""
     text = text.strip()
 
+    # 如果包含 </think> 或 </thinking> 标签，从标签后开始提取
+    # 这样可以跳过思考过程中的示例 JSON
+    think_end = max(
+        text.rfind('</think>'),
+        text.rfind('</thinking>'),
+        text.rfind('</THINK>'),
+        text.rfind('</THINKING>')
+    )
+    if think_end != -1:
+        # 从标签结束位置之后开始
+        text = text[think_end + len('</think>'):]
+
     # 移除可能的 markdown 代码块标记
+    text = text.strip()
     if text.startswith("```"):
         lines = text.split("\n")
         # 移除开头的 ```json 或 ```
@@ -63,17 +76,10 @@ def extract_json(text: str) -> dict:
     except json.JSONDecodeError:
         pass
 
-    # 提取 JSON 对象部分
-    start = text.find("{")
-    if start == -1:
-        raise ValueError("LLM 响应中未找到 JSON 对象")
-
-    end = text.rfind("}")
-    if end == -1 or end <= start:
-        # JSON 不完整，尝试修复
-        json_text = text[start:]
-    else:
-        json_text = text[start : end + 1]
+    # 尝试提取第一个完整的 JSON 对象
+    json_text = _extract_first_complete_json(text)
+    if not json_text:
+        raise ValueError("LLM 响应中未找到有效的 JSON 对象")
 
     # 尝试多种修复策略
     for fix_func in [
@@ -92,6 +98,49 @@ def extract_json(text: str) -> dict:
 
     # 所有修复都失败，抛出原始错误
     raise ValueError(f"无法解析 LLM 响应的 JSON: {json_text[:200]}...")
+
+
+def _extract_first_complete_json(text: str) -> str | None:
+    """从文本中提取第一个完整的 JSON 对象。
+
+    使用括号匹配算法找到第一个完整的 {} 对。
+    """
+    start = text.find("{")
+    if start == -1:
+        return None
+
+    depth = 0
+    in_string = False
+    escape_next = False
+
+    for i in range(start, len(text)):
+        char = text[i]
+
+        if escape_next:
+            escape_next = False
+            continue
+
+        if char == '\\':
+            escape_next = True
+            continue
+
+        if char == '"' and not escape_next:
+            in_string = not in_string
+            continue
+
+        if in_string:
+            continue
+
+        if char == '{':
+            depth += 1
+        elif char == '}':
+            depth -= 1
+            if depth == 0:
+                # 找到完整的 JSON 对象
+                return text[start:i+1]
+
+    # 未找到完整的 JSON，返回从 { 到末尾的内容
+    return text[start:]
 
 
 def _fix_common_json_errors(text: str) -> str:

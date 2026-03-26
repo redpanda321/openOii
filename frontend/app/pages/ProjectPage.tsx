@@ -44,8 +44,8 @@ export function ProjectPage() {
     if (projectError) {
       const apiError = projectError instanceof ApiError ? projectError : null;
       toast.error({
-        title: "加载项目失败",
-        message: apiError?.message || "无法获取项目信息",
+        title: "无法加载项目",
+        message: apiError?.message || "项目数据获取失败，请重试",
         actions: [
           {
             label: "重试",
@@ -163,22 +163,22 @@ export function ProjectPage() {
           // 取消失败，提示用户
           retryCount.current = 0;
           toast.warning({
-            title: "任务冲突",
-            message: "有一个任务正在运行中，请稍后再试",
+            title: "请稍等片刻",
+            message: "另一个任务正在进行，完成后再试",
           });
         }
       } else if (isConflict) {
         // 重试次数用尽，提示用户
         retryCount.current = 0;
         toast.warning({
-          title: "任务冲突",
-          message: "有一个任务正在运行中，请稍后再试",
+          title: "请稍等片刻",
+          message: "另一个任务正在进行，完成后再试",
         });
       } else {
         // 其他错误
         toast.error({
           title: "生成失败",
-          message: apiError?.message || error.message || "未知错误",
+          message: apiError?.message || error.message || "生成过程出错，请重试或联系支持",
           details: import.meta.env.DEV ? JSON.stringify(apiError?.details) : undefined,
         });
       }
@@ -196,13 +196,13 @@ export function ProjectPage() {
 
       if (isConflict) {
         toast.info({
-          title: "正在处理中",
-          message: "请稍候...",
+          title: "AI 正在思考",
+          message: "请等待当前任务完成",
         });
       } else {
         toast.error({
-          title: "反馈失败",
-          message: apiError?.message || error.message || "未知错误",
+          title: "提交失败",
+          message: apiError?.message || error.message || "无法发送反馈，请重试",
         });
       }
     },
@@ -361,8 +361,8 @@ export function ProjectPage() {
           </div>
         </header>
 
-        <main className="flex-1 flex overflow-hidden p-4 gap-4">
-          <div className="w-1/3 min-w-[320px] max-w-[480px] h-full flex flex-col">
+        <main className="flex-1 flex flex-col md:flex-row overflow-hidden p-2 sm:p-4 gap-2 sm:gap-4">
+          <div className="w-full md:w-2/5 lg:w-1/3 md:min-w-[320px] md:max-w-[480px] h-64 md:h-full flex flex-col">
             <ChatPanel
               onSendFeedback={handleFeedback}
               onConfirm={handleConfirm}
@@ -372,7 +372,7 @@ export function ProjectPage() {
             />
           </div>
 
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden min-h-0">
             <StageView projectId={projectId} />
           </div>
         </main>

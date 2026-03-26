@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import SessionDep
+from app.api.deps import AdminDep, SessionDep
 from app.models.agent_run import AgentMessage, AgentRun
 from app.models.message import Message
 from app.models.project import Character, Project, Shot
@@ -119,7 +119,7 @@ async def update_project(project_id: int, payload: ProjectUpdate, session: Async
 
 
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_project(project_id: int, session: AsyncSession = SessionDep):
+async def delete_project(project_id: int, session: AsyncSession = SessionDep, _: None = AdminDep):
     """完全删除项目及所有关联数据（包括文件）"""
     project = await session.get(Project, project_id)
     if not project:
