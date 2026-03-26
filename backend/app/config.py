@@ -33,11 +33,7 @@ class Settings(BaseSettings):
     redis_url: str = Field(default="redis://localhost:6379/0")
 
     # ============================================
-<<<<<<< HEAD
     # LLM 服务 — 统一多 Provider 配置
-=======
-    # LLM 服务 (Claude Agent SDK - Anthropic)
->>>>>>> a29f702cb59dad19dffe398b48d86789906219bc
     # ============================================
     llm_provider: str = Field(
         default="anthropic",
