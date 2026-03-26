@@ -33,8 +33,27 @@ class Settings(BaseSettings):
     redis_url: str = Field(default="redis://localhost:6379/0")
 
     # ============================================
-    # LLM 服务 (Claude Agent SDK - Anthropic 形式接口)
+    # LLM 服务 — 统一多 Provider 配置
     # ============================================
+    llm_provider: str = Field(
+        default="anthropic",
+        description='LLM provider: "anthropic" (native SDK), "openai" (OpenAI SDK), '
+        '"openai-compatible" (OpenAI SDK with custom base_url, e.g. new-api gateway)',
+    )
+    llm_base_url: str | None = Field(
+        default=None,
+        description="Custom base URL for the LLM provider (used when provider is openai/openai-compatible)",
+    )
+    llm_api_key: str | None = Field(
+        default=None,
+        description="Unified LLM API key (falls back to anthropic_api_key / OPENAI_API_KEY)",
+    )
+    llm_model: str | None = Field(
+        default=None,
+        description="Unified model name (falls back to anthropic_model)",
+    )
+
+    # ── Legacy Anthropic-specific (backward compat) ──
     anthropic_api_key: str | None = None
     anthropic_auth_token: str | None = Field(
         default=None,
@@ -48,6 +67,23 @@ class Settings(BaseSettings):
         default="claude-sonnet-4-5-20250929",
         description="Claude 模型名称（中转站会自动转换为对应模型）",
     )
+
+    @property
+    def effective_llm_provider(self) -> str:
+        return self.llm_provider
+
+    @property
+    def effective_llm_model(self) -> str:
+        return self.llm_model or self.anthropic_model
+
+    @property
+    def effective_llm_api_key(self) -> str | None:
+        """Resolve API key: llm_api_key > anthropic_api_key > anthropic_auth_token"""
+        return self.llm_api_key or self.anthropic_api_key or self.anthropic_auth_token
+
+    @property
+    def effective_llm_base_url(self) -> str | None:
+        return self.llm_base_url or self.anthropic_base_url
 
     # ============================================
     # 图像生成服务 (OpenAI 兼容接口)
@@ -167,12 +203,14 @@ class Settings(BaseSettings):
     def anthropic_env(self) -> dict[str, Any]:
         """Anthropic 环境变量（用于 Claude Agent SDK）"""
         env: dict[str, Any] = {}
-        if self.anthropic_api_key:
-            env["ANTHROPIC_API_KEY"] = self.anthropic_api_key
+        key = self.effective_llm_api_key
+        if key:
+            env["ANTHROPIC_API_KEY"] = key
         if self.anthropic_auth_token:
             env["ANTHROPIC_AUTH_TOKEN"] = self.anthropic_auth_token
-        if self.anthropic_base_url:
-            env["ANTHROPIC_BASE_URL"] = self.anthropic_base_url
+        base = self.effective_llm_base_url
+        if base:
+            env["ANTHROPIC_BASE_URL"] = base
         return env
 
     def build_public_url(self, path: str | None) -> str | None:
