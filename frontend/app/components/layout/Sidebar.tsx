@@ -107,8 +107,8 @@ export function Sidebar() {
         {/* 头部 */}
         <div className="flex items-center justify-between p-4 border-b border-base-300">
           <Link to="/" className="flex items-center gap-2 group">
-            <span className="text-2xl font-heading font-bold inline-flex items-center gap-2">
-              <FilmIcon className="w-6 h-6 text-primary" aria-hidden="true" />
+            <span className="text-lg font-heading font-bold inline-flex items-center gap-2">
+              <FilmIcon className="w-5 h-5 text-primary" aria-hidden="true" />
               Hanggent Comic
             </span>
           </Link>

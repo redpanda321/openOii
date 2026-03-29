@@ -60,8 +60,8 @@ export function HomePage() {
         <main className="w-full max-w-3xl mx-auto">
           {/* Logo / title */}
           <div className="text-center mb-8 sm:mb-10 animate-draw-in">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-sans font-bold mb-2 inline-flex items-center gap-3">
-              <FilmIcon className="w-8 h-8 sm:w-10 sm:h-10 text-secondary" aria-hidden="true" />
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-sans font-bold mb-2 inline-flex items-center gap-3">
+              <FilmIcon className="w-6 h-6 sm:w-8 sm:h-8 text-secondary" aria-hidden="true" />
               <span>Hanggent Comic</span>
             </h1>
             <p className="text-base-content/80 text-base sm:text-lg mt-4 px-4">
