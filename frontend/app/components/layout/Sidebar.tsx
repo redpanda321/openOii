@@ -81,7 +81,7 @@ export function Sidebar() {
       {!isOpen && (
         <button
           onClick={toggle}
-          className="fixed top-4 left-4 z-50 p-2 bg-base-100 border-3 border-black rounded-lg shadow-brutal hover:shadow-brutal-lg hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer touch-target"
+          className="fixed top-4 left-4 z-50 p-2 bg-base-100 border border-base-300 rounded-lg shadow-brutal hover:shadow-brutal-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer touch-target"
           title="展开侧边栏"
           aria-label="展开侧边栏"
         >
@@ -100,16 +100,16 @@ export function Sidebar() {
 
       {/* 侧边栏 */}
       <aside
-        className={`fixed top-0 left-0 h-full bg-base-100 border-r-3 border-black z-40 flex flex-col transition-all duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 h-full bg-base-100 border-r border-base-300 z-40 flex flex-col transition-all duration-300 ease-in-out ${
           isOpen ? "w-full sm:w-80 md:w-72 translate-x-0" : "w-full sm:w-80 md:w-72 -translate-x-full"
         }`}
       >
         {/* 头部 */}
-        <div className="flex items-center justify-between p-4 border-b-3 border-black">
+        <div className="flex items-center justify-between p-4 border-b border-base-300">
           <Link to="/" className="flex items-center gap-2 group">
             <span className="text-2xl font-heading font-bold inline-flex items-center gap-2">
               <FilmIcon className="w-6 h-6 text-primary" aria-hidden="true" />
-              openOii
+              Hanggent Comic
             </span>
           </Link>
           <button
@@ -125,7 +125,7 @@ export function Sidebar() {
         <div className="p-3">
           <button
             onClick={handleNewProject}
-            className="w-full flex items-center gap-2 px-4 py-3 bg-primary text-primary-content border-3 border-black rounded-lg shadow-brutal hover:shadow-brutal-lg hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-200 font-bold cursor-pointer"
+            className="w-full flex items-center gap-2 px-4 py-3 bg-primary text-primary-content border border-base-300 rounded-lg shadow-brutal hover:shadow-brutal-lg hover:-translate-y-0.5 transition-all duration-200 font-semibold cursor-pointer"
           >
             <PlusIcon className="w-5 h-5" />
             <span>新建故事</span>
@@ -189,11 +189,11 @@ export function Sidebar() {
         </div>
 
         {/* 底部 */}
-        <div className="p-3 border-t-3 border-black space-y-3">
+        <div className="p-3 border-t border-base-300 space-y-3">
           {/* 设置按钮 - 涂鸦风格 */}
           <button
             onClick={handleSettingsClick}
-            className="w-full flex items-center gap-3 px-4 py-3 bg-base-200 hover:bg-base-300 border-3 border-base-content/30 rounded-lg shadow-brutal-sm hover:shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
+            className="w-full flex items-center gap-3 px-4 py-3 bg-base-200 hover:bg-base-300 border border-base-300 rounded-lg shadow-brutal-sm hover:shadow-brutal hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group"
             title="系统设置"
             aria-label="系统设置"
           >
@@ -221,8 +221,8 @@ export function Sidebar() {
           </div>
 
           {/* 底部标语 */}
-          <div className="text-xs text-center text-base-content/50 font-sketch flex items-center justify-center gap-1 pt-1">
-            <span>openOii - AI 漫剧生成器</span>
+          <div className="text-xs text-center text-base-content/50 flex items-center justify-center gap-1 pt-1">
+            <span>Hanggent Comic</span>
             <SparklesIcon className="w-4 h-4" aria-hidden="true" />
           </div>
         </div>

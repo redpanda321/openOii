@@ -1,8 +1,8 @@
-# openOii - AI Agent 漫剧生成平台
+# Hanggent Comic - AI Agent 漫剧生成平台
 
 <div align="center">
 
-<img src="./doc/logo.png" width="200" alt="openOii Logo" />
+<img src="./doc/logo.png" width="200" alt="Hanggent Comic Logo" />
 
 **基于多智能体协作的漫剧创作平台，让创意变成现实**
 
@@ -20,7 +20,7 @@
 
 ## 📖 项目简介
 
-openOii 是一个基于 AI Agent 的智能漫剧生成平台，通过多智能体协作流程，将用户的创意故事自动转化为完整的视频作品。每个 Agent 专注于特定任务（剧本创作、角色设计、分镜绘制、视频生成等），协同完成从创意到成品的全流程。
+Hanggent Comic 是一个基于 AI Agent 的智能漫剧生成平台，通过多智能体协作流程，将用户的创意故事自动转化为完整的视频作品。每个 Agent 专注于特定任务（剧本创作、角色设计、分镜绘制、视频生成等），协同完成从创意到成品的全流程。
 
 ### ✨ 核心特性
 
@@ -474,6 +474,6 @@ chore: 构建/工具链相关
 
 **用 AI 创造无限可能 🚀**
 
-Made with ❤️ by openOii Team
+Made with ❤️ by Hanggent Comic Team
 
 </div>

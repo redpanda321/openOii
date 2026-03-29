@@ -1,5 +1,5 @@
 """
-openOii Agent 工具定义模块
+Hanggent Comic Agent 工具定义模块
 
 基于 Claude Agent SDK 的 @tool 装饰器定义可供 agent 使用的工具。
 这些工具通过 MCP server 暴露给 Claude，让 AI 能够自主调用。
@@ -416,10 +416,10 @@ ALL_TOOLS = [
 ]
 
 
-def create_openOii_mcp_server():
-    """创建 openOii 工具 MCP Server"""
+def create_hanggent_comic_mcp_server():
+    """创建 Hanggent Comic 工具 MCP Server"""
     return create_sdk_mcp_server(
-        name="openOii",
+        name="hanggent-comic",
         version="0.1.0",
         tools=ALL_TOOLS,
     )
@@ -427,16 +427,16 @@ def create_openOii_mcp_server():
 
 # 工具名称列表（用于 allowed_tools）
 ALLOWED_TOOLS = [
-    "mcp__openOii__get_project_info",
-    "mcp__openOii__update_project",
-    "mcp__openOii__list_characters",
-    "mcp__openOii__create_character",
-    "mcp__openOii__update_character",
-    "mcp__openOii__delete_character",
-    "mcp__openOii__list_shots",
-    "mcp__openOii__create_shot",
-    "mcp__openOii__update_shot",
-    "mcp__openOii__delete_shot",
-    "mcp__openOii__regenerate_shot_image",
-    "mcp__openOii__regenerate_shot_video",
+    "mcp__hanggent-comic__get_project_info",
+    "mcp__hanggent-comic__update_project",
+    "mcp__hanggent-comic__list_characters",
+    "mcp__hanggent-comic__create_character",
+    "mcp__hanggent-comic__update_character",
+    "mcp__hanggent-comic__delete_character",
+    "mcp__hanggent-comic__list_shots",
+    "mcp__hanggent-comic__create_shot",
+    "mcp__hanggent-comic__update_shot",
+    "mcp__hanggent-comic__delete_shot",
+    "mcp__hanggent-comic__regenerate_shot_image",
+    "mcp__hanggent-comic__regenerate_shot_video",
 ]

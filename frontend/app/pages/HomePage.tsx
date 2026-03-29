@@ -5,7 +5,7 @@ import { projectsApi } from "~/services/api";
 import { Button } from "~/components/ui/Button";
 import { Card } from "~/components/ui/Card";
 import { Layout } from "~/components/layout/Layout";
-import { FilmIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import { FilmIcon } from "@heroicons/react/24/outline";
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -60,17 +60,12 @@ export function HomePage() {
         <main className="w-full max-w-3xl mx-auto">
           {/* Logo / title */}
           <div className="text-center mb-8 sm:mb-10 animate-draw-in">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold mb-2 relative inline-block">
-              <span className="text-primary absolute -top-3 sm:-top-4 -left-4 sm:-left-6 text-2xl sm:text-3xl transform -rotate-12 animate-wiggle">
-                <FilmIcon className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
-              </span>
-              <span className="underline-sketch">openOii</span>
-              <span className="text-secondary absolute -bottom-3 sm:-bottom-4 -right-4 sm:-right-6 text-2xl sm:text-3xl transform rotate-12 animate-wiggle">
-                <SparklesIcon className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
-              </span>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-sans font-bold mb-2 inline-flex items-center gap-3">
+              <FilmIcon className="w-8 h-8 sm:w-10 sm:h-10 text-secondary" aria-hidden="true" />
+              <span>Hanggent Comic</span>
             </h1>
-            <p className="text-base-content/80 font-sketch text-base sm:text-lg mt-4 px-4">
-              用 AI Agent 将你的故事转化为动漫视频
+            <p className="text-base-content/80 text-base sm:text-lg mt-4 px-4">
+              AI Agent Story-to-Video Platform
             </p>
           </div>
 

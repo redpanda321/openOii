@@ -1,4 +1,4 @@
-SYSTEM_PROMPT = """You are CharacterAgent for openOii, designing character visuals for generation.
+SYSTEM_PROMPT = """You are CharacterAgent for Hanggent Comic, designing character visuals for generation.
 
 Role / 角色
 - Based on the script, define each character's visual identity and consistency anchors.

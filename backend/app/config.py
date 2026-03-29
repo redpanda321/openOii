@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     # should not implicitly read the repo's .env. Runtime uses get_settings().
     model_config = SettingsConfigDict(extra="ignore")
 
-    app_name: str = "openOii-backend"
+    app_name: str = "hanggent-comic-backend"
     environment: str = Field(default="dev", description="dev|staging|prod")
     log_level: str = Field(default="INFO", description="Uvicorn log level")
 

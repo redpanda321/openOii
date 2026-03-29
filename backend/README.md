@@ -1,4 +1,4 @@
-# openOii Backend
+# Hanggent Comic Backend
 
 FastAPI + SQLModel + PostgreSQL (asyncpg) 后端。测试使用内存 SQLite。
 

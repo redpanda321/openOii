@@ -6,10 +6,10 @@
 @layer base {
   :root {
     /* Semantic Colors - Toast/Alert States */
-    --color-success: #51CF66;
-    --color-error: #FF6B6B;
-    --color-warning: #FFD93D;
-    --color-info: #74C0FC;
+    --color-success: #00a63e;
+    --color-error: #e7000b;
+    --color-warning: #d08700;
+    --color-info: #155dfc;
 
     /* Spacing Scale */
     --space-xs: 0.25rem;  /* 4px */
@@ -20,9 +20,9 @@
     --space-2xl: 3rem;    /* 48px */
 
     /* Border Widths */
-    --border-thin: 2px;
-    --border-medium: 3px;
-    --border-thick: 4px;
+    --border-thin: 1px;
+    --border-medium: 1px;
+    --border-thick: 2px;
 
     /* Touch Targets */
     --touch-target-min: 44px;
@@ -68,16 +68,16 @@
     min-height: var(--touch-target-min);
   }
 
-  /* Brutal Shadow Hover Pattern */
+  /* Subtle Hover Pattern */
   .brutal-hover {
     @apply transition-all duration-200;
   }
 
   .brutal-hover:hover {
-    @apply shadow-brutal-lg -translate-x-0.5 -translate-y-0.5;
+    @apply shadow-brutal-lg -translate-y-0.5;
   }
 
   .brutal-hover:active {
-    @apply shadow-brutal translate-x-0 translate-y-0;
+    @apply shadow-brutal translate-y-0;
   }
 }

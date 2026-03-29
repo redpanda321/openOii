@@ -32,5 +32,5 @@ async def generate_video(args: dict[str, Any]) -> dict[str, Any]:
 
 
 def create_tools_mcp_server():
-    server = create_sdk_mcp_server(name="openOii-media", version="0.1.0", tools=[generate_image, generate_video])
+    server = create_sdk_mcp_server(name="hanggent-comic-media", version="0.1.0", tools=[generate_image, generate_video])
     return server

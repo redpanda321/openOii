@@ -98,11 +98,11 @@ async def get_redis() -> redis.Redis:
 
 
 def get_confirm_event_key(run_id: int) -> str:
-    return f"openoii:confirm:{run_id}"
+    return f"hanggent_comic:confirm:{run_id}"
 
 
 def get_confirm_channel(run_id: int) -> str:
-    return f"openoii:confirm_channel:{run_id}"
+    return f"hanggent_comic:confirm_channel:{run_id}"
 
 
 async def clear_confirm_event_redis(run_id: int) -> None:

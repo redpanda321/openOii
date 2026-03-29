@@ -231,7 +231,7 @@ async def _run_demo_mcp_server() -> None:
         if exc.name == "claude_agent_sdk":
             raise RuntimeError(
                 "Missing dependency `claude-agent-sdk`. Install: `cd backend && uv sync --extra agents` "
-                "or `pip install 'openOii-backend[agents]'`."
+                "or `pip install 'hanggent-comic-backend[agents]'`."
             ) from exc
         raise
 

@@ -62,7 +62,7 @@ class LLMService:
         except ModuleNotFoundError as exc:  # pragma: no cover
             raise RuntimeError(
                 "Missing dependency `anthropic`. Install optional deps: `uv sync --extra agents` "
-                "or `pip install 'openOii-backend[agents]'`."
+                "or `pip install 'hanggent-comic-backend[agents]'`."
             ) from exc
         self._anthropic_mod = anthropic
         return anthropic
@@ -142,7 +142,7 @@ class LLMService:
         except ModuleNotFoundError as exc:  # pragma: no cover
             raise RuntimeError(
                 "Missing dependency `openai`. Install optional deps: `uv sync --extra agents` "
-                "or `pip install 'openOii-backend[agents]'`."
+                "or `pip install 'hanggent-comic-backend[agents]'`."
             ) from exc
         self._openai_mod = openai
         return openai

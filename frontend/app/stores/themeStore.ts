@@ -24,7 +24,7 @@ export const useThemeStore = create<ThemeState>()(
       },
     }),
     {
-      name: "openoii-theme",
+      name: "hanggent-comic-theme",
       onRehydrateStorage: () => (state) => {
         // 恢复主题时应用到 DOM
         if (state?.theme) {

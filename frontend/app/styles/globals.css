@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap') layer(fonts);
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap') layer(fonts);
 @import './tokens.css';
 
 @tailwind base;
@@ -8,6 +8,8 @@
 @layer base {
  body {
    @apply bg-base-100 text-base-content min-h-screen font-sans;
+   -webkit-font-smoothing: antialiased;
+   -moz-osx-font-smoothing: grayscale;
   }
 
  /* 主题切换平滑过渡 */
@@ -24,7 +26,7 @@
   }
 
  h1, h2, h3, h4, h5, h6 {
-   @apply font-heading;
+   @apply font-sans font-bold;
   }
 
  /* Skip to Content 链接样式 */
@@ -54,55 +56,31 @@
 }
 
 @layer components {
- /* 涂鸦风格卡片 */
+ /* Card */
  .card-doodle {
-   @apply bg-base-100 border-3 border-base-content/30 rounded-xl shadow-brutal transition-all duration-200;
+   @apply bg-base-100 border border-base-300 rounded-xl shadow-brutal transition-all duration-200;
   }
  .card-doodle:hover {
-   @apply shadow-brutal-lg -translate-x-0.5 -translate-y-0.5;
+   @apply shadow-brutal-lg -translate-y-0.5;
   }
 
- /* 涂鸦风格按钮 */
+ /* Button */
  .btn-doodle {
-   @apply border-3 border-base-content/30 rounded-lg shadow-brutal font-bold uppercase tracking-wide transition-all duration-150;
+   @apply border border-base-300 rounded-lg shadow-brutal-sm font-semibold tracking-wide transition-all duration-150;
   }
  .btn-doodle:hover:not(:disabled) {
-   @apply shadow-brutal-hover -translate-x-0.5 -translate-y-0.5;
+   @apply shadow-brutal -translate-y-0.5;
   }
  .btn-doodle:active:not(:disabled) {
-   @apply shadow-none translate-x-1 translate-y-1;
+   @apply shadow-none translate-y-0;
   }
  .btn-doodle:disabled {
    @apply cursor-not-allowed;
   }
 
- /* 涂鸦风格输入框 */
+ /* Input */
  .input-doodle {
-   @apply border-3 border-base-content/30 rounded-lg bg-base-100 outline-none focus:border-primary transition-colors;
-  }
-
- /* 手绘下划线效果 */
- .underline-sketch {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10'%3E%3Cpath d='M0 8 Q 25 2, 50 8 T 100 8' stroke='%23FFDE59' stroke-width='3' fill='none'/%3E%3C/svg%3E");
-    background-repeat: repeat-x;
-    background-position: bottom;
-    background-size: 100px 10px;
-    padding-bottom: 8px;
-  }
-
- /* 涂鸦装饰 - 星星 */
- .doodle-star::before {
-    content: "✦";
-   @apply absolute -top-2 -right-2 text-primary text-xl animate-pulse;
-  }
-
- /* 涂鸦装饰 - 圆圈 */
- .doodle-circle {
-   @apply relative;
-  }
- .doodle-circle::after {
-    content: "";
-   @apply absolute -inset-2 border-2 border-dashed border-secondary rounded-full opacity-50;
+   @apply border border-base-300 rounded-lg bg-base-100 outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-colors;
   }
 
  /* 文本截断工具类 */
@@ -122,89 +100,6 @@
 }
 
 @layer utilities {
- /* 手绘边框效果 */
- .border-sketch {
-    border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-  }
-
- /* 抖动动画 */
- .animate-wiggle {
-    animation: wiggle 0.3s ease-in-out infinite;
-    will-change: transform;
-  }
-
- @keyframes wiggle {
-    0%, 100% { transform: rotate(-1deg); }
-    50% { transform: rotate(1deg); }
-  }
-
- /* 弹跳进入 */
- .animate-bounce-in {
-    animation: bounce-in 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-    will-change: transform, opacity;
-  }
-
- @keyframes bounce-in {
-    0% { transform: scale(0) rotate(-5deg); opacity: 0; }
-    60% { transform: scale(1.05) rotate(2deg); }
-    100% { transform: scale(1) rotate(0deg); opacity: 1; }
-  }
-
- /* 手绘描边动画 */
- .animate-draw-in {
-    animation: draw-in 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-    will-change: transform, opacity;
-  }
-
- @keyframes draw-in {
-    0% {
-      opacity: 0;
-      transform: scale(0.8) rotate(-3deg);
-      filter: blur(4px);
-    }
-    50% {
-      opacity: 0.5;
-      transform: scale(1.02) rotate(1deg);
-      filter: blur(2px);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1) rotate(0deg);
-      filter: blur(0);
-    }
-  }
-
- /* 涂鸦浮现 */
- .animate-doodle-pop {
-    animation: doodle-pop 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-    will-change: transform, opacity;
-  }
-
- @keyframes doodle-pop {
-    0% {
-      transform: scale(0) rotate(-12deg);
-      opacity: 0;
-    }
-    70% {
-      transform: scale(1.08) rotate(3deg);
-    }
-    100% {
-      transform: scale(1) rotate(0deg);
-      opacity: 1;
-    }
-  }
-
- /* 水平弹跳动画 */
- .animate-bounce-x {
-    animation: bounce-x 1s infinite;
-    will-change: transform;
-  }
-
- @keyframes bounce-x {
-    0%, 100% { transform: translateX(0); }
-    50% { transform: translateX(-8px); }
-  }
-
  /* 淡入动画 */
  .animate-fade-in {
     animation: fade-in 0.3s cubic-bezier(0.25, 1, 0.5, 1);
@@ -214,6 +109,28 @@
  @keyframes fade-in {
     0% { opacity: 0; transform: translateY(-4px); }
     100% { opacity: 1; transform: translateY(0); }
+  }
+
+ /* 缩放进入 */
+ .animate-draw-in {
+    animation: draw-in 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform, opacity;
+  }
+
+ @keyframes draw-in {
+    0% { opacity: 0; transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+ /* 弹入动画 */
+ .animate-doodle-pop {
+    animation: doodle-pop 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform, opacity;
+  }
+
+ @keyframes doodle-pop {
+    0% { transform: scale(0.95); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
   }
 
  /* 消息滑入动画 */
@@ -249,30 +166,6 @@
     100% { opacity: 0; }
   }
 
- /* 成功庆祝动画 */
- .animate-success-celebration {
-    animation: success-celebration 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: transform;
-  }
-
- @keyframes success-celebration {
-    0% { transform: scale(1); }
-    25% { transform: scale(1.1) rotate(5deg); }
-    50% { transform: scale(0.95) rotate(-5deg); }
-    75% { transform: scale(1.05) rotate(3deg); }
-    100% { transform: scale(1) rotate(0deg); }
-  }
-
- /* 脉冲高亮 */
- .animate-pulse-highlight {
-    animation: pulse-highlight 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-  }
-
- @keyframes pulse-highlight {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(var(--color-primary-rgb), 0); }
-    50% { box-shadow: 0 0 0 8px rgba(var(--color-primary-rgb), 0.3); }
-  }
-
  /* 触摸目标最小尺寸 */
  .touch-target {
    @apply min-w-[44px] min-h-[44px];
@@ -281,10 +174,9 @@
 
 /* 减少动画偏好 */
 @media (prefers-reduced-motion: reduce) {
- .animate-wiggle,
- .animate-bounce-in,
- .animate-bounce-x,
  .animate-fade-in,
+ .animate-draw-in,
+ .animate-doodle-pop,
  .animate-slide-in-left,
  .animate-slide-in-right,
  .animate-shimmer {
@@ -300,7 +192,7 @@
 }
 
 .infinite-canvas-container .tl-container {
-  --tl-font-family: 'Nunito', 'Comic Neue', sans-serif;
+  --tl-font-family: 'Inter', sans-serif;
   background: transparent !important;
 }
 

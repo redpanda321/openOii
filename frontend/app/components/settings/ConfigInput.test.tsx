@@ -26,15 +26,15 @@ describe('ConfigInput', () => {
   it('渲染普通文本输入框', () => {
     const item: ConfigItem = {
       key: 'APP_NAME',
-      value: 'OpenOii',
+      value: 'Hanggent Comic',
       is_sensitive: false,
       is_masked: false,
       source: 'env',
     };
 
-    render(<ConfigInput item={item} value="OpenOii" onChange={mockOnChange} />);
+    render(<ConfigInput item={item} value="Hanggent Comic" onChange={mockOnChange} />);
 
-    const input = screen.getByDisplayValue('OpenOii');
+    const input = screen.getByDisplayValue('Hanggent Comic');
     expect(input).toBeInTheDocument();
     expect(input).toHaveAttribute('type', 'text');
     expect(input).toHaveAttribute('name', 'APP_NAME');
@@ -44,15 +44,15 @@ describe('ConfigInput', () => {
     const user = userEvent.setup();
     const item: ConfigItem = {
       key: 'APP_NAME',
-      value: 'OpenOii',
+      value: 'Hanggent Comic',
       is_sensitive: false,
       is_masked: false,
       source: 'env',
     };
 
-    render(<ConfigInput item={item} value="OpenOii" onChange={mockOnChange} />);
+    render(<ConfigInput item={item} value="Hanggent Comic" onChange={mockOnChange} />);
 
-    const input = screen.getByDisplayValue('OpenOii');
+    const input = screen.getByDisplayValue('Hanggent Comic');
     await user.clear(input);
     await user.type(input, 'NewName');
 
