@@ -4,6 +4,8 @@ import ipaddress
 from urllib.parse import urlparse
 
 import httpx
+import logging
+
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,6 +23,7 @@ from app.schemas.config import (
 from app.services.config_service import ConfigService
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 def _is_safe_url(url: str) -> bool:
@@ -338,3 +341,33 @@ async def _test_video_connection(settings) -> TestConnectionResponse:
             message="连接失败",
             details=str(e)[:200]
         )
+
+
+# ── Hanggent cloud providers ───────────────────────────────────────
+
+@router.get("/providers")
+async def get_providers(_: None = AdminDep):
+    """Fetch available model providers from the hanggent server.
+
+    Returns categorised providers (llm / image / video) from the
+    hanggent admin model catalog, routed through the new-api gateway.
+    """
+    settings = get_settings()
+    if not settings.hanggent_server_url:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="HANGGENT_SERVER_URL not configured",
+        )
+
+    url = f"{settings.hanggent_server_url.rstrip('/')}/openoii/providers"
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(url)
+            resp.raise_for_status()
+            return resp.json()
+    except httpx.HTTPStatusError as e:
+        logger.warning("hanggent provider fetch failed: %s %s", e.response.status_code, e.response.text[:200])
+        raise HTTPException(status_code=502, detail=f"Hanggent server error: {e.response.status_code}")
+    except Exception as e:
+        logger.warning("hanggent provider fetch error: %s", e)
+        raise HTTPException(status_code=502, detail="Failed to reach hanggent server")

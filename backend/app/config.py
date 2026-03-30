@@ -192,6 +192,14 @@ class Settings(BaseSettings):
         description="视频服务提供商：openai（OpenAI 兼容接口）或 doubao（豆包）",
     )
 
+    # ============================================
+    # Hanggent 集成
+    # ============================================
+    hanggent_server_url: str | None = Field(
+        default=None,
+        description="Hanggent server URL for fetching cloud model providers (e.g. http://hanggent-server:8001)",
+    )
+
     request_timeout_s: float = 120.0
     public_base_url: str | None = Field(
         default=None,

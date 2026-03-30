@@ -118,3 +118,23 @@ export interface ConfigSection {
 }
 
 export type AppConfig = ConfigItem[];
+
+// Hanggent cloud provider types
+export interface ProviderEntry {
+  id: string;
+  name: string;
+  baseUrl: string;
+  apiKey: string;
+  models: string[];
+}
+
+export interface ProviderCategory {
+  providers: ProviderEntry[];
+  defaultModel: string | null;
+}
+
+export interface ProvidersResponse {
+  llm: ProviderCategory;
+  image: ProviderCategory;
+  video: ProviderCategory;
+}

@@ -1,6 +1,7 @@
 import { ApiError } from "~/types/errors";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:18765";
+const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN || "";
 
 /**
  * 将后端静态文件路径转换为完整 URL
@@ -49,6 +50,7 @@ async function fetchApi<T>(
       ...options,
       headers: {
         "Content-Type": "application/json",
+        ...(ADMIN_TOKEN ? { "X-Admin-Token": ADMIN_TOKEN } : {}),
         ...options?.headers,
       },
     });
@@ -217,4 +219,6 @@ export const configApi = {
       method: "POST",
       body: JSON.stringify({ key }),
     }),
+  getProviders: () =>
+    fetchApi<import("~/types").ProvidersResponse>("/api/v1/config/providers"),
 };

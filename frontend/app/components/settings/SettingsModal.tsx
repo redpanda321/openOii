@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSettingsStore } from "~/stores/settingsStore";
 import { configApi } from "~/services/api";
-import type { ConfigItem, ConfigValue } from "~/types";
+import type { ConfigItem, ConfigValue, ProviderEntry } from "~/types";
 import { ConfigInput } from "./ConfigInput";
 import { groupConfigs } from "~/utils/configGroups";
 import {
@@ -16,6 +16,7 @@ import {
   WrenchScrewdriverIcon,
   CheckCircleIcon,
   ExclamationCircleIcon,
+  CloudIcon,
 } from "@heroicons/react/24/outline";
 
 type AlertType = "success" | "error" | "warning";
@@ -46,12 +47,30 @@ export function SettingsModal() {
     enabled: isModalOpen,
   });
 
+  const { data: cloudProviders } = useQuery({
+    queryKey: ["config-providers"],
+    queryFn: configApi.getProviders,
+    enabled: isModalOpen,
+    retry: false,
+    staleTime: 60_000,
+  });
+
   useEffect(() => {
     if (config) {
       const initialState = config.reduce((acc, item) => {
         acc[item.key] = item.value;
         return acc;
       }, {} as Record<string, ConfigValue>);
+      // Restore "hanggent-cloud" radio state from persisted cloud-mode markers
+      if (initialState['TEXT_CLOUD_MODE'] === 'true') {
+        initialState['TEXT_PROVIDER'] = 'hanggent-cloud';
+      }
+      if (initialState['IMAGE_CLOUD_MODE'] === 'true') {
+        initialState['IMAGE_PROVIDER'] = 'hanggent-cloud';
+      }
+      if (initialState['VIDEO_CLOUD_MODE'] === 'true') {
+        initialState['VIDEO_PROVIDER'] = 'hanggent-cloud';
+      }
       setFormState(initialState);
     }
   }, [config]);
@@ -103,7 +122,30 @@ export function SettingsModal() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateMutation.mutate(formState);
+    // Transform "hanggent-cloud" provider values to backend-compatible "openai"
+    // while persisting a cloud-mode marker so the UI can restore the radio state.
+    const payload = { ...formState };
+    if (payload['TEXT_PROVIDER'] === 'hanggent-cloud') {
+      payload['TEXT_PROVIDER'] = 'openai';
+      payload['TEXT_CLOUD_MODE'] = 'true';
+    } else {
+      payload['TEXT_CLOUD_MODE'] = '';
+    }
+    if (payload['IMAGE_PROVIDER'] === 'hanggent-cloud') {
+      // No backend image_provider field, just track cloud mode
+      delete payload['IMAGE_PROVIDER'];
+      payload['IMAGE_CLOUD_MODE'] = 'true';
+    } else {
+      delete payload['IMAGE_PROVIDER'];
+      payload['IMAGE_CLOUD_MODE'] = '';
+    }
+    if (payload['VIDEO_PROVIDER'] === 'hanggent-cloud') {
+      payload['VIDEO_PROVIDER'] = 'openai';
+      payload['VIDEO_CLOUD_MODE'] = 'true';
+    } else {
+      payload['VIDEO_CLOUD_MODE'] = '';
+    }
+    updateMutation.mutate(payload);
   };
 
   const handleCancel = () => {
@@ -112,6 +154,15 @@ export function SettingsModal() {
         acc[item.key] = item.value;
         return acc;
       }, {} as Record<string, ConfigValue>);
+      if (initialState['TEXT_CLOUD_MODE'] === 'true') {
+        initialState['TEXT_PROVIDER'] = 'hanggent-cloud';
+      }
+      if (initialState['IMAGE_CLOUD_MODE'] === 'true') {
+        initialState['IMAGE_PROVIDER'] = 'hanggent-cloud';
+      }
+      if (initialState['VIDEO_CLOUD_MODE'] === 'true') {
+        initialState['VIDEO_PROVIDER'] = 'hanggent-cloud';
+      }
       setFormState(initialState);
     }
     closeModal();
@@ -157,6 +208,92 @@ export function SettingsModal() {
   // 获取当前视频服务提供商
   const getVideoProvider = () => {
     return (formState['VIDEO_PROVIDER'] || formState['video_provider'] || 'doubao') as string;
+  };
+
+  // 检查当前文本配置是否使用了 hanggent 云模型
+  const isTextCloud = getTextProvider() === 'hanggent-cloud';
+
+  // 检查当前图像配置是否使用了 hanggent 云模型
+  const isImageCloud = (formState['IMAGE_PROVIDER'] as string) === 'hanggent-cloud';
+
+  // 检查当前视频配置是否使用了 hanggent 云模型
+  const isVideoCloud = getVideoProvider() === 'hanggent-cloud';
+
+  // 应用 hanggent 云提供商到表单
+  const applyCloudProvider = (
+    category: "text" | "image" | "video",
+    provider: ProviderEntry,
+    model: string,
+  ) => {
+    if (category === "text") {
+      setFormState(prev => ({
+        ...prev,
+        TEXT_PROVIDER: "hanggent-cloud",
+        TEXT_BASE_URL: provider.baseUrl,
+        TEXT_API_KEY: provider.apiKey,
+        TEXT_MODEL: model,
+      }));
+    } else if (category === "image") {
+      setFormState(prev => ({
+        ...prev,
+        IMAGE_PROVIDER: "hanggent-cloud",
+        IMAGE_BASE_URL: provider.baseUrl,
+        IMAGE_API_KEY: provider.apiKey,
+        IMAGE_MODEL: model,
+      }));
+    } else if (category === "video") {
+      setFormState(prev => ({
+        ...prev,
+        VIDEO_PROVIDER: "hanggent-cloud",
+        VIDEO_BASE_URL: provider.baseUrl,
+        VIDEO_API_KEY: provider.apiKey,
+        VIDEO_MODEL: model,
+      }));
+    }
+  };
+
+  // 渲染 hanggent 云模型选择器
+  const renderCloudModelPicker = (
+    category: "llm" | "image" | "video",
+    formCategory: "text" | "image" | "video",
+    currentModel: string,
+  ) => {
+    const cat = cloudProviders?.[category];
+    if (!cat || cat.providers.length === 0) return null;
+
+    return (
+      <div className="space-y-4">
+        <h4 className="font-bold text-sm flex items-center gap-2 text-accent">
+          <CloudIcon className="w-4 h-4" />
+          Hanggent 云模型
+        </h4>
+        <div className="space-y-3 pl-4 border-l-2 border-accent/30">
+          {cat.providers.map(provider => (
+            <div key={provider.id} className="bg-base-200 p-4 rounded-lg border-2 border-black">
+              <div className="font-bold text-sm mb-2">{provider.name}</div>
+              <div className="flex flex-wrap gap-2">
+                {provider.models.map(model => (
+                  <button
+                    key={model}
+                    type="button"
+                    onClick={() => applyCloudProvider(formCategory, provider, model)}
+                    className={`
+                      px-3 py-1.5 rounded-lg text-xs font-mono border-2 transition-all
+                      ${currentModel === model
+                        ? 'border-accent bg-accent text-accent-content'
+                        : 'border-black bg-base-100 hover:bg-base-300'
+                      }
+                    `}
+                  >
+                    {model}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   // 渲染单个配置项
@@ -218,9 +355,34 @@ export function SettingsModal() {
               <span className="font-mono font-bold text-sm">TEXT_PROVIDER</span>
               <span className="badge badge-primary badge-xs">必选</span>
             </div>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-4">
+              {cloudProviders?.llm && cloudProviders.llm.providers.length > 0 && (
+                <label className={`
+                  flex-1 min-w-[180px] flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                  ${textProvider === 'hanggent-cloud'
+                    ? 'border-accent bg-accent/10'
+                    : 'border-black hover:bg-base-300'
+                  }
+                `}>
+                  <input
+                    type="radio"
+                    name="TEXT_PROVIDER"
+                    value="hanggent-cloud"
+                    checked={textProvider === 'hanggent-cloud'}
+                    onChange={handleInputChange}
+                    className="radio radio-accent"
+                  />
+                  <div>
+                    <div className="font-bold flex items-center gap-1">
+                      <CloudIcon className="w-4 h-4" />
+                      Hanggent Cloud
+                    </div>
+                    <div className="text-xs text-base-content/60">使用 Hanggent 云端模型</div>
+                  </div>
+                </label>
+              )}
               <label className={`
-                flex-1 flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                flex-1 min-w-[180px] flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all
                 ${textProvider === 'anthropic'
                   ? 'border-accent bg-accent/10'
                   : 'border-black hover:bg-base-300'
@@ -240,7 +402,7 @@ export function SettingsModal() {
                 </div>
               </label>
               <label className={`
-                flex-1 flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                flex-1 min-w-[180px] flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all
                 ${textProvider === 'openai'
                   ? 'border-accent bg-accent/10'
                   : 'border-black hover:bg-base-300'
@@ -262,6 +424,9 @@ export function SettingsModal() {
             </div>
           </div>
         )}
+
+        {/* Hanggent 云模型选择 */}
+        {isTextCloud && renderCloudModelPicker("llm", "text", (formState['TEXT_MODEL'] || '') as string)}
 
         {/* Anthropic 配置 */}
         {textProvider === 'anthropic' && anthropicItems.length > 0 && (
@@ -326,9 +491,34 @@ export function SettingsModal() {
               <span className="font-mono font-bold text-sm">VIDEO_PROVIDER</span>
               <span className="badge badge-primary badge-xs">必选</span>
             </div>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-4">
+              {cloudProviders?.video && cloudProviders.video.providers.length > 0 && (
+                <label className={`
+                  flex-1 min-w-[180px] flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                  ${videoProvider === 'hanggent-cloud'
+                    ? 'border-accent bg-accent/10'
+                    : 'border-black hover:bg-base-300'
+                  }
+                `}>
+                  <input
+                    type="radio"
+                    name="VIDEO_PROVIDER"
+                    value="hanggent-cloud"
+                    checked={videoProvider === 'hanggent-cloud'}
+                    onChange={handleInputChange}
+                    className="radio radio-accent"
+                  />
+                  <div>
+                    <div className="font-bold flex items-center gap-1">
+                      <CloudIcon className="w-4 h-4" />
+                      Hanggent Cloud
+                    </div>
+                    <div className="text-xs text-base-content/60">使用 Hanggent 云端模型</div>
+                  </div>
+                </label>
+              )}
               <label className={`
-                flex-1 flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                flex-1 min-w-[180px] flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all
                 ${videoProvider === 'doubao'
                   ? 'border-accent bg-accent/10'
                   : 'border-black hover:bg-base-300'
@@ -348,7 +538,7 @@ export function SettingsModal() {
                 </div>
               </label>
               <label className={`
-                flex-1 flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                flex-1 min-w-[180px] flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all
                 ${videoProvider === 'openai'
                   ? 'border-accent bg-accent/10'
                   : 'border-black hover:bg-base-300'
@@ -370,6 +560,9 @@ export function SettingsModal() {
             </div>
           </div>
         )}
+
+        {/* Hanggent 云模型选择 */}
+        {isVideoCloud && renderCloudModelPicker("video", "video", (formState['VIDEO_MODEL'] || '') as string)}
 
         {/* 豆包配置 */}
         {videoProvider === 'doubao' && doubaoItems.length > 0 && (
@@ -413,9 +606,103 @@ export function SettingsModal() {
     );
   };
 
+  // 渲染图像服务配置（支持 Hanggent Cloud）
+  const renderImageSection = () => {
+    if (!activeSection || activeTab !== 'image') return null;
+
+    const hasCloudImage = cloudProviders?.image && cloudProviders.image.providers.length > 0;
+
+    return (
+      <div className="space-y-6">
+        {/* 分类描述 */}
+        <div className="flex items-center gap-2 text-sm text-info bg-info/10 px-4 py-2 rounded-lg border border-info/30">
+          <InformationCircleIcon className="w-4 h-4 shrink-0" />
+          <span>{tabConfig[activeTab]?.desc}</span>
+        </div>
+
+        {/* Hanggent Cloud 选项 */}
+        {hasCloudImage && (
+          <div className="bg-base-200 p-4 rounded-lg border-2 border-black">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="font-mono font-bold text-sm">IMAGE_PROVIDER</span>
+              <span className="badge badge-primary badge-xs">可选</span>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <label className={`
+                flex-1 min-w-[180px] flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                ${isImageCloud
+                  ? 'border-accent bg-accent/10'
+                  : 'border-black hover:bg-base-300'
+                }
+              `}>
+                <input
+                  type="radio"
+                  name="IMAGE_PROVIDER"
+                  value="hanggent-cloud"
+                  checked={isImageCloud}
+                  onChange={(e) => {
+                    handleInputChange(e);
+                  }}
+                  className="radio radio-accent"
+                />
+                <div>
+                  <div className="font-bold flex items-center gap-1">
+                    <CloudIcon className="w-4 h-4" />
+                    Hanggent Cloud
+                  </div>
+                  <div className="text-xs text-base-content/60">使用 Hanggent 云端模型</div>
+                </div>
+              </label>
+              <label className={`
+                flex-1 min-w-[180px] flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all
+                ${!isImageCloud
+                  ? 'border-accent bg-accent/10'
+                  : 'border-black hover:bg-base-300'
+                }
+              `}>
+                <input
+                  type="radio"
+                  name="IMAGE_PROVIDER"
+                  value="custom"
+                  checked={!isImageCloud}
+                  onChange={(e) => {
+                    handleInputChange(e);
+                  }}
+                  className="radio radio-accent"
+                />
+                <div>
+                  <div className="font-bold">自定义配置</div>
+                  <div className="text-xs text-base-content/60">手动配置图像服务地址和密钥</div>
+                </div>
+              </label>
+            </div>
+          </div>
+        )}
+
+        {/* Hanggent 云模型选择 */}
+        {isImageCloud && renderCloudModelPicker("image", "image", (formState['IMAGE_MODEL'] || '') as string)}
+
+        {/* 自定义配置 */}
+        {!isImageCloud && (
+          <div className="space-y-4">
+            {activeSection.items.map(renderConfigItem)}
+          </div>
+        )}
+
+        {/* 空状态 */}
+        {activeSection.items.length === 0 && !isImageCloud && (
+          <div className="text-center py-12 text-base-content/50">
+            <InformationCircleIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
+            <p>此分类暂无配置项</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // 渲染普通配置项列表
   const renderNormalSection = () => {
-    if (!activeSection || activeTab === 'video' || activeTab === 'text') return null;
+    if (!activeSection || activeTab === 'video' || activeTab === 'text' || activeTab === 'image') return null;
 
     return (
       <div className="space-y-4">
@@ -511,6 +798,7 @@ export function SettingsModal() {
             {/* 标签页内容 */}
             <div className="flex-1 overflow-y-auto p-6">
               {activeTab === 'text' ? renderTextSection() :
+               activeTab === 'image' ? renderImageSection() :
                activeTab === 'video' ? renderVideoSection() :
                renderNormalSection()}
             </div>
