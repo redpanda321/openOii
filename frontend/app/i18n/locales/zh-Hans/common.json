@@ -1,0 +1,18 @@
+{
+  "loading": "加载中...",
+  "retry": "重试",
+  "delete": "删除",
+  "cancel": "取消",
+  "confirm": "确认",
+  "unknown-error": "未知错误",
+  "back": "← 返回",
+  "next": "下一步 →",
+  "back-to-home": "返回首页",
+  "created-successfully": "创建成功",
+  "creation-failed": "创建失败",
+  "deleted-successfully": "删除成功",
+  "delete-failed": "删除失败",
+  "request-failed": "请求失败",
+  "network-error": "网络连接失败，请检查您的网络设置",
+  "invalid-response": "服务器返回了无效的响应格式"
+}

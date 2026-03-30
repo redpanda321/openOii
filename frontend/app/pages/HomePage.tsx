@@ -6,12 +6,14 @@ import { Button } from "~/components/ui/Button";
 import { Card } from "~/components/ui/Card";
 import { Layout } from "~/components/layout/Layout";
 import { FilmIcon } from "@heroicons/react/24/outline";
+import { useTranslation } from "react-i18next";
 
 export function HomePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [story, setStory] = useState("");
   const [isComposing, setIsComposing] = useState(false);
+  const { t } = useTranslation();
 
   const createMutation = useMutation({
     mutationFn: projectsApi.create,
@@ -25,10 +27,9 @@ export function HomePage() {
     const trimmed = story.trim();
     if (!trimmed || createMutation.isPending) return;
 
-    // 输入验证：长度限制
     const MAX_STORY_LENGTH = 5000;
     if (trimmed.length > MAX_STORY_LENGTH) {
-      alert(`故事太长了！请控制在 ${MAX_STORY_LENGTH} 字以内（当前 ${trimmed.length} 字）`);
+      alert(t('project:story-too-long', { max: MAX_STORY_LENGTH, current: trimmed.length }));
       return;
     }
 
@@ -40,7 +41,7 @@ export function HomePage() {
         : firstLine;
 
     createMutation.mutate({
-      title: title || "未命名项目",
+      title: title || t('project:untitled-project'),
       story: trimmed,
       style: "anime",
     });
@@ -76,27 +77,25 @@ export function HomePage() {
           >
             <div className="relative">
               <label htmlFor="story-input" className="sr-only">
-                输入你的故事创意
+                {t('editor:enter-story-idea')}
               </label>
               <textarea
                 id="story-input"
                 className="input-doodle w-full min-h-36 text-base resize-none p-4 pr-16"
-                placeholder={
-                  "写下你的故事创意\n\n例如：一只梦想成为宇航员的猫，偷偷登上了火箭..."
-                }
+                placeholder={t('editor:story-idea-placeholder')}
                 value={story}
                 onChange={(e) => setStory(e.target.value)}
                 onKeyDown={handleKeyDown}
                 onCompositionStart={() => setIsComposing(true)}
                 onCompositionEnd={() => setIsComposing(false)}
                 disabled={createMutation.isPending}
-                aria-label="输入你的故事创意"
+                aria-label={t('editor:enter-story-idea')}
                 maxLength={5000}
                 rows={6}
               />
               {story.length > 4500 && (
                 <div className="absolute bottom-16 right-4 text-xs text-warning">
-                  还能写 {5000 - story.length} 字
+                  {t('editor:chars-remaining', { count: 5000 - story.length })}
                 </div>
               )}
               <Button
@@ -106,8 +105,8 @@ export function HomePage() {
                 onClick={handleSubmit}
                 disabled={!story.trim() || createMutation.isPending}
                 loading={createMutation.isPending}
-                title="开始生成 (Enter)"
-                aria-label="开始生成故事"
+                title={t('editor:start-generate')}
+                aria-label={t('editor:start-generate-story')}
               >
                 {!createMutation.isPending && (
                   <svg
@@ -123,13 +122,12 @@ export function HomePage() {
               </Button>
             </div>
             <p className="text-xs text-base-content/50 mt-2 text-center font-sketch">
-              按 Enter 发送，Shift + Enter 换行
+              {t('editor:enter-to-send')}
             </p>
           </Card>
 
-          {/* 提示文字 */}
           <p className="text-center text-sm text-base-content/50 mt-8 animate-fade-in" style={{ animationDelay: "300ms" }}>
-            历史记录在左侧边栏中查看 ←
+            {t('editor:history-hint')}
           </p>
         </main>
       </div>

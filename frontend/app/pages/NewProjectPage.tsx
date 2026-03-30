@@ -15,11 +15,13 @@ import {
 } from "@heroicons/react/24/outline";
 import { toast } from "~/utils/toast";
 import { ApiError } from "~/types/errors";
+import { useTranslation } from "react-i18next";
 
 export function NewProjectPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     title: "",
     story: "",
@@ -31,20 +33,19 @@ export function NewProjectPage() {
     onSuccess: (project) => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       toast.success({
-        title: "创建成功",
-        message: "项目已创建，正在跳转...",
+        title: t('common:created-successfully'),
+        message: t('project:project-created-redirect'),
       });
-      // 自动开始生成
       navigate(`/project/${project.id}?autoStart=true`);
     },
     onError: (error: Error | ApiError) => {
       const apiError = error instanceof ApiError ? error : null;
       toast.error({
-        title: "创建失败",
-        message: apiError?.message || error.message || "未知错误",
+        title: t('common:creation-failed'),
+        message: apiError?.message || error.message || t('common:unknown-error'),
         actions: [
           {
-            label: "重试",
+            label: t('common:retry'),
             onClick: () => createMutation.mutate(formData),
           },
         ],
@@ -58,10 +59,10 @@ export function NewProjectPage() {
   };
 
   const styles = [
-    { id: "cinematic", name: "电影风格", icon: FilmIcon },
-    { id: "anime", name: "动漫风格", icon: SparklesIcon },
-    { id: "comic", name: "漫画风格", icon: BookOpenIcon },
-    { id: "watercolor", name: "水彩风格", icon: PaintBrushIcon },
+    { id: "cinematic", name: t('project:style-cinematic'), icon: FilmIcon },
+    { id: "anime", name: t('project:style-anime'), icon: SparklesIcon },
+    { id: "comic", name: t('project:style-comic'), icon: BookOpenIcon },
+    { id: "watercolor", name: t('project:style-watercolor'), icon: PaintBrushIcon },
   ];
 
   const selectedStyle = styles.find((s) => s.id === formData.style);
@@ -72,7 +73,7 @@ export function NewProjectPage() {
       <header className="navbar bg-base-200 border-b border-base-300">
         <div className="flex-1">
           <Link to="/" className="btn btn-ghost">
-            ← 返回
+            {t('common:back')}
           </Link>
         </div>
       </header>
@@ -81,9 +82,9 @@ export function NewProjectPage() {
       <main className="container mx-auto px-4 py-8 max-w-2xl">
         {/* Progress steps */}
         <ul className="steps steps-horizontal w-full mb-8">
-          <li className={`step ${step >= 1 ? "step-primary" : ""}`}>故事</li>
-          <li className={`step ${step >= 2 ? "step-primary" : ""}`}>风格</li>
-          <li className={`step ${step >= 3 ? "step-primary" : ""}`}>确认</li>
+          <li className={`step ${step >= 1 ? "step-primary" : ""}`}>{t('project:step-story')}</li>
+          <li className={`step ${step >= 2 ? "step-primary" : ""}`}>{t('project:step-style')}</li>
+          <li className={`step ${step >= 3 ? "step-primary" : ""}`}>{t('project:step-confirm')}</li>
         </ul>
 
         {/* Step 1: Story */}
@@ -92,14 +93,14 @@ export function NewProjectPage() {
             title={
               <span className="inline-flex items-center gap-2">
                 <DocumentTextIcon className="w-5 h-5" aria-hidden="true" />
-                <span className="underline-sketch">讲述你的故事</span>
+                <span className="underline-sketch">{t('project:tell-your-story')}</span>
               </span>
             }
           >
             <div className="space-y-4">
               <Input
-                label="项目标题"
-                placeholder="我的精彩故事"
+                label={t('project:project-title')}
+                placeholder={t('project:my-story-placeholder')}
                 value={formData.title}
                 onChange={(e) =>
                   setFormData({ ...formData, title: e.target.value })
@@ -107,11 +108,11 @@ export function NewProjectPage() {
               />
               <div className="form-control">
                 <label className="label">
-                  <span className="label-text">故事内容</span>
+                  <span className="label-text">{t('project:story-content')}</span>
                 </label>
                 <textarea
                   className="textarea textarea-bordered bg-base-200 h-48"
-                  placeholder="很久很久以前..."
+                  placeholder={t('project:story-placeholder')}
                   value={formData.story}
                   onChange={(e) =>
                     setFormData({ ...formData, story: e.target.value })
@@ -123,7 +124,7 @@ export function NewProjectPage() {
                   onClick={() => setStep(2)}
                   disabled={!formData.title.trim()}
                 >
-                  下一步 →
+                  {t('common:next')}
                 </Button>
               </div>
             </div>
@@ -136,7 +137,7 @@ export function NewProjectPage() {
             title={
               <span className="inline-flex items-center gap-2">
                 <PaintBrushIcon className="w-5 h-5" aria-hidden="true" />
-                <span className="underline-sketch">选择风格</span>
+                <span className="underline-sketch">{t('project:choose-style')}</span>
               </span>
             }
           >
@@ -161,9 +162,9 @@ export function NewProjectPage() {
             </div>
             <div className="flex justify-between">
               <Button variant="ghost" onClick={() => setStep(1)}>
-                ← 返回
+                {t('common:back')}
               </Button>
-              <Button onClick={() => setStep(3)}>下一步 →</Button>
+              <Button onClick={() => setStep(3)}>{t('common:next')}</Button>
             </div>
           </Card>
         )}
@@ -174,7 +175,7 @@ export function NewProjectPage() {
             title={
               <span className="inline-flex items-center gap-2">
                 <CheckCircleIcon className="w-5 h-5" aria-hidden="true" />
-                <span className="underline-sketch">确认项目</span>
+                <span className="underline-sketch">{t('project:confirm-project')}</span>
               </span>
             }
           >
@@ -197,14 +198,14 @@ export function NewProjectPage() {
               </div>
               <div className="flex justify-between">
                 <Button variant="ghost" onClick={() => setStep(2)}>
-                  ← 返回
+                  {t('common:back')}
                 </Button>
                 <Button
                   variant="primary"
                   onClick={handleSubmit}
                   loading={createMutation.isPending}
                 >
-                  创建项目
+                  {t('project:create-project')}
                 </Button>
               </div>
             </div>
@@ -213,7 +214,7 @@ export function NewProjectPage() {
 
         {createMutation.isError && (
           <div className="alert alert-error mt-4">
-            <span>创建项目失败，请重试。</span>
+            <span>{t('project:create-project-failed')}</span>
           </div>
         )}
       </main>

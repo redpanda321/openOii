@@ -1,4 +1,5 @@
-import type { ConfigItem } from "~/types";
+﻿import type { ConfigItem } from "~/types";
+import i18n from '~/i18n';
 
 export interface ConfigSection {
   key: string;
@@ -41,9 +42,9 @@ export function groupConfigs(configs: ConfigItem[]): ConfigSection[] {
   });
 
   return [
-    { key: "database", title: "数据库配置", items: groups.database },
-    { key: "text", title: "文本生成服务", items: groups.text },
-    { key: "image", title: "图像生成服务", items: groups.image },
-    { key: "video", title: "视频服务", items: groups.video },
+    { key: "database", title: i18n.t('setting:database'), items: groups.database },
+    { key: "text", title: i18n.t('setting:text-generation'), items: groups.text },
+    { key: "image", title: i18n.t('setting:image-generation'), items: groups.image },
+    { key: "video", title: i18n.t('setting:video-service'), items: groups.video },
   ].filter((section) => section.items.length > 0); // 过滤空分组
 }

@@ -18,6 +18,9 @@ import {
   ExclamationCircleIcon,
   CloudIcon,
 } from "@heroicons/react/24/outline";
+import { useTranslation } from "react-i18next";
+import { LanguagePicker } from "./LanguagePicker";
+import { GlobeAltIcon } from "@heroicons/react/24/outline";
 
 type AlertType = "success" | "error" | "warning";
 
@@ -31,6 +34,7 @@ interface AlertState {
 
 export function SettingsModal() {
   const { isModalOpen, closeModal } = useSettingsStore();
+  const { t } = useTranslation("setting");
   const queryClient = useQueryClient();
   const [formState, setFormState] = useState<Record<string, ConfigValue>>({});
   const [activeTab, setActiveTab] = useState("database");
@@ -92,16 +96,16 @@ export function SettingsModal() {
         setAlertState({
           show: true,
           type: "warning",
-          title: "配置已保存！",
-          message: "其他配置已立即生效。",
+          title: t("config-saved"),
+          message: t("config-saved-note"),
           details: `以下配置需要重启服务才能生效：\n${keys}`,
         });
       } else {
         setAlertState({
           show: true,
           type: "success",
-          title: "保存成功",
-          message: "配置已保存并立即生效！",
+          title: t("save-success"),
+          message: t("save-success-note"),
         });
       }
     },
@@ -109,7 +113,7 @@ export function SettingsModal() {
       setAlertState({
         show: true,
         type: "error",
-        title: "保存失败",
+        title: t("save-failed"),
         message: error.message,
       });
     },
@@ -178,23 +182,28 @@ export function SettingsModal() {
   const tabConfig: Record<string, { icon: React.ReactNode; title: string; desc: string }> = {
     database: {
       icon: <CircleStackIcon className="w-4 h-4" />,
-      title: "数据库",
-      desc: "数据库和 Redis 连接配置"
+      title: t("database"),
+      desc: t("database-desc")
     },
     text: {
       icon: <SparklesIcon className="w-4 h-4" />,
-      title: "文本生成",
-      desc: "文本生成服务配置，支持 Anthropic 和 OpenAI 兼容接口"
+      title: t("text-generation"),
+      desc: t("text-generation-desc")
     },
     image: {
       icon: <PhotoIcon className="w-4 h-4" />,
-      title: "图像服务",
-      desc: "图像生成服务配置（OpenAI 兼容接口）"
+      title: t("image-generation"),
+      desc: t("image-generation-desc")
     },
     video: {
       icon: <VideoCameraIcon className="w-4 h-4" />,
-      title: "视频服务",
-      desc: "视频生成服务配置，支持 OpenAI 兼容接口和豆包"
+      title: t("video-service"),
+      desc: t("video-service-desc")
+    },
+    language: {
+      icon: <GlobeAltIcon className="w-4 h-4" />,
+      title: t("language"),
+      desc: "",
     },
   };
 
@@ -265,7 +274,7 @@ export function SettingsModal() {
       <div className="space-y-4">
         <h4 className="font-bold text-sm flex items-center gap-2 text-accent">
           <CloudIcon className="w-4 h-4" />
-          Hanggent 云模型
+          {t("hanggent-cloud-models")}
         </h4>
         <div className="space-y-3 pl-4 border-l-2 border-accent/30">
           {cat.providers.map(provider => (
@@ -307,10 +316,10 @@ export function SettingsModal() {
           {item.key.toUpperCase()}
         </span>
         {item.is_sensitive && (
-          <span className="badge badge-warning badge-xs">敏感</span>
+          <span className="badge badge-warning badge-xs">{t("sensitive")}</span>
         )}
         {item.source === 'env' && (
-          <span className="badge badge-info badge-xs">仅.env</span>
+          <span className="badge badge-info badge-xs">{t("env-only")}</span>
         )}
       </div>
       <ConfigInput
@@ -353,7 +362,7 @@ export function SettingsModal() {
           <div className="bg-base-200 p-4 rounded-lg border-2 border-black">
             <div className="flex items-center gap-2 mb-3">
               <span className="font-mono font-bold text-sm">TEXT_PROVIDER</span>
-              <span className="badge badge-primary badge-xs">必选</span>
+              <span className="badge badge-primary badge-xs">{t("required")}</span>
             </div>
             <div className="flex flex-wrap gap-4">
               {cloudProviders?.llm && cloudProviders.llm.providers.length > 0 && (
@@ -377,7 +386,7 @@ export function SettingsModal() {
                       <CloudIcon className="w-4 h-4" />
                       Hanggent Cloud
                     </div>
-                    <div className="text-xs text-base-content/60">使用 Hanggent 云端模型</div>
+                    <div className="text-xs text-base-content/60">{t("hanggent-cloud-desc")}</div>
                   </div>
                 </label>
               )}
@@ -398,7 +407,7 @@ export function SettingsModal() {
                 />
                 <div>
                   <div className="font-bold">Anthropic Claude</div>
-                  <div className="text-xs text-base-content/60">Claude Agent SDK，推荐使用</div>
+                  <div className="text-xs text-base-content/60">{t("anthropic-claude-desc")}</div>
                 </div>
               </label>
               <label className={`
@@ -417,15 +426,15 @@ export function SettingsModal() {
                   className="radio radio-accent"
                 />
                 <div>
-                  <div className="font-bold">OpenAI 兼容</div>
-                  <div className="text-xs text-base-content/60">支持任何 OpenAI 兼容接口</div>
+                  <div className="font-bold">OpenAI Compatible</div>
+                  <div className="text-xs text-base-content/60">{t("openai-compat-desc")}</div>
                 </div>
               </label>
             </div>
           </div>
         )}
 
-        {/* Hanggent 云模型选择 */}
+        {/* {t("hanggent-cloud-models")}选择 */}
         {isTextCloud && renderCloudModelPicker("llm", "text", (formState['TEXT_MODEL'] || '') as string)}
 
         {/* Anthropic 配置 */}
@@ -433,7 +442,7 @@ export function SettingsModal() {
           <div className="space-y-4">
             <h4 className="font-bold text-sm flex items-center gap-2 text-accent">
               <SparklesIcon className="w-4 h-4" />
-              Anthropic Claude 配置
+              {t("anthropic-config")}
             </h4>
             <div className="space-y-4 pl-4 border-l-2 border-accent/30">
               {anthropicItems.map(renderConfigItem)}
@@ -446,7 +455,7 @@ export function SettingsModal() {
           <div className="space-y-4">
             <h4 className="font-bold text-sm flex items-center gap-2 text-accent">
               <SparklesIcon className="w-4 h-4" />
-              OpenAI 兼容接口配置
+              {t("openai-compat-config")}
             </h4>
             <div className="space-y-4 pl-4 border-l-2 border-accent/30">
               {openaiItems.map(renderConfigItem)}
@@ -489,7 +498,7 @@ export function SettingsModal() {
           <div className="bg-base-200 p-4 rounded-lg border-2 border-black">
             <div className="flex items-center gap-2 mb-3">
               <span className="font-mono font-bold text-sm">VIDEO_PROVIDER</span>
-              <span className="badge badge-primary badge-xs">必选</span>
+              <span className="badge badge-primary badge-xs">{t("required")}</span>
             </div>
             <div className="flex flex-wrap gap-4">
               {cloudProviders?.video && cloudProviders.video.providers.length > 0 && (
@@ -513,7 +522,7 @@ export function SettingsModal() {
                       <CloudIcon className="w-4 h-4" />
                       Hanggent Cloud
                     </div>
-                    <div className="text-xs text-base-content/60">使用 Hanggent 云端模型</div>
+                    <div className="text-xs text-base-content/60">{t("hanggent-cloud-desc")}</div>
                   </div>
                 </label>
               )}
@@ -533,8 +542,8 @@ export function SettingsModal() {
                   className="radio radio-accent"
                 />
                 <div>
-                  <div className="font-bold">豆包视频</div>
-                  <div className="text-xs text-base-content/60">火山引擎 Ark API，国内推荐</div>
+                  <div className="font-bold">{t("doubao-video")}</div>
+                  <div className="text-xs text-base-content/60">{t("doubao-video-desc")}</div>
                 </div>
               </label>
               <label className={`
@@ -553,15 +562,15 @@ export function SettingsModal() {
                   className="radio radio-accent"
                 />
                 <div>
-                  <div className="font-bold">OpenAI 兼容</div>
-                  <div className="text-xs text-base-content/60">支持任何 OpenAI 兼容接口</div>
+                  <div className="font-bold">OpenAI Compatible</div>
+                  <div className="text-xs text-base-content/60">{t("openai-compat-desc")}</div>
                 </div>
               </label>
             </div>
           </div>
         )}
 
-        {/* Hanggent 云模型选择 */}
+        {/* {t("hanggent-cloud-models")}选择 */}
         {isVideoCloud && renderCloudModelPicker("video", "video", (formState['VIDEO_MODEL'] || '') as string)}
 
         {/* 豆包配置 */}
@@ -569,7 +578,7 @@ export function SettingsModal() {
           <div className="space-y-4">
             <h4 className="font-bold text-sm flex items-center gap-2 text-accent">
               <VideoCameraIcon className="w-4 h-4" />
-              豆包视频配置
+              {t("doubao-video-config")}
             </h4>
             <div className="space-y-4 pl-4 border-l-2 border-accent/30">
               {doubaoItems.map(renderConfigItem)}
@@ -582,7 +591,7 @@ export function SettingsModal() {
           <div className="space-y-4">
             <h4 className="font-bold text-sm flex items-center gap-2 text-accent">
               <VideoCameraIcon className="w-4 h-4" />
-              OpenAI 兼容接口配置
+              {t("openai-compat-config")}
             </h4>
             <div className="space-y-4 pl-4 border-l-2 border-accent/30">
               {openaiItems.map(renderConfigItem)}
@@ -590,7 +599,7 @@ export function SettingsModal() {
           </div>
         )}
 
-        {/* 通用配置 */}
+        {/* {t("general-config")} */}
         {commonItems.length > 0 && (
           <div className="space-y-4">
             <h4 className="font-bold text-sm flex items-center gap-2 text-base-content/70">
@@ -625,7 +634,7 @@ export function SettingsModal() {
           <div className="bg-base-200 p-4 rounded-lg border-2 border-black">
             <div className="flex items-center gap-2 mb-3">
               <span className="font-mono font-bold text-sm">IMAGE_PROVIDER</span>
-              <span className="badge badge-primary badge-xs">可选</span>
+              <span className="badge badge-primary badge-xs">{t("optional")}</span>
             </div>
             <div className="flex flex-wrap gap-4">
               <label className={`
@@ -650,7 +659,7 @@ export function SettingsModal() {
                     <CloudIcon className="w-4 h-4" />
                     Hanggent Cloud
                   </div>
-                  <div className="text-xs text-base-content/60">使用 Hanggent 云端模型</div>
+                  <div className="text-xs text-base-content/60">{t("hanggent-cloud-desc")}</div>
                 </div>
               </label>
               <label className={`
@@ -671,15 +680,15 @@ export function SettingsModal() {
                   className="radio radio-accent"
                 />
                 <div>
-                  <div className="font-bold">自定义配置</div>
-                  <div className="text-xs text-base-content/60">手动配置图像服务地址和密钥</div>
+                  <div className="font-bold">{t("custom-config")}</div>
+                  <div className="text-xs text-base-content/60">{t("custom-config-desc")}</div>
                 </div>
               </label>
             </div>
           </div>
         )}
 
-        {/* Hanggent 云模型选择 */}
+        {/* {t("hanggent-cloud-models")}选择 */}
         {isImageCloud && renderCloudModelPicker("image", "image", (formState['IMAGE_MODEL'] || '') as string)}
 
         {/* 自定义配置 */}
@@ -693,7 +702,7 @@ export function SettingsModal() {
         {activeSection.items.length === 0 && !isImageCloud && (
           <div className="text-center py-12 text-base-content/50">
             <InformationCircleIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p>此分类暂无配置项</p>
+            <p>{t("no-config-items")}</p>
           </div>
         )}
       </div>
@@ -702,7 +711,7 @@ export function SettingsModal() {
 
   // 渲染普通配置项列表
   const renderNormalSection = () => {
-    if (!activeSection || activeTab === 'video' || activeTab === 'text' || activeTab === 'image') return null;
+    if (!activeSection || activeTab === 'video' || activeTab === 'text' || activeTab === 'image' || activeTab === 'language') return null;
 
     return (
       <div className="space-y-4">
@@ -721,7 +730,7 @@ export function SettingsModal() {
         {activeSection.items.length === 0 && (
           <div className="text-center py-12 text-base-content/50">
             <InformationCircleIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p>此分类暂无配置项</p>
+            <p>{t("no-config-items")}</p>
           </div>
         )}
       </div>
@@ -735,7 +744,7 @@ export function SettingsModal() {
         <div className="flex items-center justify-between px-6 py-4 border-b-3 border-black bg-base-200 shrink-0">
           <h3 className="font-bold text-xl flex items-center gap-2">
             <Cog6ToothIcon className="w-6 h-6 text-accent" />
-            环境变量配置管理
+            {t("env-config-title")}
           </h3>
           <button onClick={handleCancel} className="btn btn-sm btn-ghost btn-circle">
             <XMarkIcon className="w-5 h-5" />
@@ -752,7 +761,7 @@ export function SettingsModal() {
           <div className="p-6">
             <div role="alert" className="alert alert-error border-2 border-black">
               <ExclamationCircleIcon className="w-6 h-6"/>
-              <span>加载配置失败，请检查后端服务是否正常运行。</span>
+              <span>{t("load-config-error")}</span>
             </div>
           </div>
         )}
@@ -800,6 +809,7 @@ export function SettingsModal() {
               {activeTab === 'text' ? renderTextSection() :
                activeTab === 'image' ? renderImageSection() :
                activeTab === 'video' ? renderVideoSection() :
+               activeTab === 'language' ? <LanguagePicker /> :
                renderNormalSection()}
             </div>
 
@@ -807,7 +817,7 @@ export function SettingsModal() {
             <div className="border-t-3 border-black bg-base-200 px-6 py-4 flex items-center gap-4 shrink-0">
               <div className="flex items-center gap-2 text-info text-sm flex-1">
                 <InformationCircleIcon className="w-5 h-5 shrink-0"/>
-                <span>大部分配置保存后立即生效，数据库/Redis 配置需重启</span>
+                <span>{t("config-save-note")}</span>
               </div>
 
               <button
@@ -815,7 +825,7 @@ export function SettingsModal() {
                 onClick={handleCancel}
                 className="btn border-2 border-black"
               >
-                取消
+                {t("cancel")}
               </button>
 
               <button
@@ -824,7 +834,7 @@ export function SettingsModal() {
                 disabled={updateMutation.isPending}
               >
                 {updateMutation.isPending && <span className="loading loading-spinner loading-sm"></span>}
-                保存配置
+                {t("save-config")}
               </button>
             </div>
           </form>
@@ -870,7 +880,7 @@ export function SettingsModal() {
                 }}
                 className="btn btn-primary border-2 border-black"
               >
-                确定
+                {t("confirm")}
               </button>
             </div>
           </div>

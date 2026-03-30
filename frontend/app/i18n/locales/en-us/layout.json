@@ -1,0 +1,17 @@
+{
+  "reconnected": "Reconnected successfully",
+  "can-continue": "You can continue creating",
+  "data-format-error": "Data format error",
+  "unrecognizable-data": "Server returned unrecognizable data, please refresh and retry",
+  "unable-to-connect": "Unable to connect to server",
+  "check-network": "Please check your network connection, or try again later",
+  "reconnect": "Reconnect",
+  "connection-interrupted": "Connection interrupted",
+  "reconnecting": "Reconnecting (attempt {{current}}/{{max}})",
+  "connection-failed": "Connection failed",
+  "unable-to-connect-after-retries": "Unable to connect after multiple attempts. Please check your network and refresh",
+  "refresh-page": "Refresh page",
+  "server-error": "Server error",
+  "unknown-error-occurred": "An unknown error occurred",
+  "generation-failed": "Generation failed"
+}

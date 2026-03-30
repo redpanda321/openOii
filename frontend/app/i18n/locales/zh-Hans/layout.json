@@ -1,0 +1,17 @@
+{
+  "reconnected": "重新连接成功",
+  "can-continue": "可以继续创作了",
+  "data-format-error": "数据格式错误",
+  "unrecognizable-data": "服务器返回了无法识别的数据，请刷新页面重试",
+  "unable-to-connect": "无法连接到服务器",
+  "check-network": "请检查网络连接，或稍后重试",
+  "reconnect": "重新连接",
+  "connection-interrupted": "连接中断",
+  "reconnecting": "正在重新连接 (尝试 {{current}}/{{max}})",
+  "connection-failed": "连接失败",
+  "unable-to-connect-after-retries": "多次尝试后仍无法连接。请检查网络后刷新页面",
+  "refresh-page": "刷新页面",
+  "server-error": "服务器错误",
+  "unknown-error-occurred": "发生未知错误",
+  "generation-failed": "生成失败"
+}

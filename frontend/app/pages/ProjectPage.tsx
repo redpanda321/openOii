@@ -1,4 +1,4 @@
-import {
+﻿import {
   Bars3Icon,
   FaceFrownIcon,
   PencilIcon,
@@ -19,6 +19,7 @@ import { useEditorStore } from "~/stores/editorStore";
 import { useSidebarStore } from "~/stores/sidebarStore";
 import { toast } from "~/utils/toast";
 import { ApiError } from "~/types/errors";
+import { useTranslation } from 'react-i18next';
 
 export function ProjectPage() {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +28,7 @@ export function ProjectPage() {
   const queryClient = useQueryClient();
   const store = useEditorStore();
   const { isOpen: sidebarOpen, toggle: toggleSidebar } = useSidebarStore();
+  const { t } = useTranslation();
   const autoStartTriggered = useRef(false);
   const retryCount = useRef(0);
 
@@ -44,11 +46,11 @@ export function ProjectPage() {
     if (projectError) {
       const apiError = projectError instanceof ApiError ? projectError : null;
       toast.error({
-        title: "无法加载项目",
-        message: apiError?.message || "项目数据获取失败，请重试",
+        title: t('project:unable-to-load-project'),
+        message: apiError?.message || t('project:project-data-failed'),
         actions: [
           {
-            label: "重试",
+            label: t('common:retry'),
             onClick: () => queryClient.invalidateQueries({ queryKey: ["project", projectId] }),
           },
         ],
@@ -163,22 +165,22 @@ export function ProjectPage() {
           // 取消失败，提示用户
           retryCount.current = 0;
           toast.warning({
-            title: "请稍等片刻",
-            message: "另一个任务正在进行，完成后再试",
+            title: t('editor:please-wait'),
+            message: t('editor:task-in-progress'),
           });
         }
       } else if (isConflict) {
         // 重试次数用尽，提示用户
         retryCount.current = 0;
         toast.warning({
-          title: "请稍等片刻",
-          message: "另一个任务正在进行，完成后再试",
+          title: t('editor:please-wait'),
+          message: t('editor:task-in-progress'),
         });
       } else {
         // 其他错误
         toast.error({
-          title: "生成失败",
-          message: apiError?.message || error.message || "生成过程出错，请重试或联系支持",
+          title: t('editor:generation-failed'),
+          message: apiError?.message || error.message || t('editor:generation-error'),
           details: import.meta.env.DEV ? JSON.stringify(apiError?.details) : undefined,
         });
       }
@@ -196,13 +198,13 @@ export function ProjectPage() {
 
       if (isConflict) {
         toast.info({
-          title: "AI 正在思考",
-          message: "请等待当前任务完成",
+          title: t('editor:ai-thinking'),
+          message: t('editor:wait-current-task'),
         });
       } else {
         toast.error({
-          title: "提交失败",
-          message: apiError?.message || error.message || "无法发送反馈，请重试",
+          title: t('editor:submit-failed'),
+          message: apiError?.message || error.message || t('editor:unable-to-send-feedback'),
         });
       }
     },
@@ -219,7 +221,7 @@ export function ProjectPage() {
       store.addMessage({
         agent: "system",
         role: "system",
-        content: "生成已停止",
+        content: t('editor:generation-stopped'),
         icon: StopIcon,
         timestamp: new Date().toISOString(),
       });
@@ -304,7 +306,7 @@ export function ProjectPage() {
       <div className="min-h-screen flex items-center justify-center flex-col gap-4 bg-base-100">
         <PencilIcon className="w-6 h-6 animate-bounce" aria-hidden="true" />
         <p className="font-sketch text-2xl text-base-content/80">
-          正在加载项目...
+          {t('project:loading-project')}
         </p>
       </div>
     );
@@ -318,9 +320,9 @@ export function ProjectPage() {
             className="w-6 h-6 mx-auto mb-4 animate-wiggle"
             aria-hidden="true"
           />
-          <h1 className="text-2xl font-heading font-bold mb-4">项目未找到</h1>
+          <h1 className="text-2xl font-heading font-bold mb-4">{t('project:project-not-found')}</h1>
           <Link to="/">
-            <Button variant="primary">返回首页</Button>
+            <Button variant="primary">{t('common:back-to-home')}</Button>
           </Link>
         </Card>
       </div>
@@ -345,7 +347,7 @@ export function ProjectPage() {
                   size="sm"
                   className="!px-2"
                   onClick={toggleSidebar}
-                  title="展开侧边栏"
+                  title={t('editor:expand-sidebar')}
                 >
                   <Bars3Icon className="w-5 h-5" />
                 </Button>

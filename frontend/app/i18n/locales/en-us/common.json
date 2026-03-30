@@ -1,0 +1,18 @@
+{
+  "loading": "Loading...",
+  "retry": "Retry",
+  "delete": "Delete",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "unknown-error": "Unknown error",
+  "back": "← Back",
+  "next": "Next →",
+  "back-to-home": "Back to Home",
+  "created-successfully": "Created successfully",
+  "creation-failed": "Creation failed",
+  "deleted-successfully": "Deleted successfully",
+  "delete-failed": "Delete failed",
+  "request-failed": "Request failed",
+  "network-error": "Network connection failed, please check your network settings",
+  "invalid-response": "Server returned an invalid response format"
+}

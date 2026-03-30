@@ -1,7 +1,8 @@
-import { useEffect, useRef, useCallback } from "react";
+﻿import { useEffect, useRef, useCallback } from "react";
 import { useEditorStore } from "~/stores/editorStore";
 import type { WsEvent, WorkflowStage } from "~/types";
 import { toast } from "~/utils/toast";
+import i18n from '~/i18n';
 
 const WS_BASE = import.meta.env.VITE_WS_URL || "ws://localhost:18765";
 const RECONNECT_DELAY = 3000;
@@ -48,8 +49,8 @@ export function useProjectWebSocket(projectId: number | null) {
       // 只在重连成功时显示提示
       if (reconnectAttempts.current > 0) {
         toast.success({
-          title: "重新连接成功",
-          message: "可以继续创作了",
+          title: i18n.t('layout:reconnected'),
+          message: i18n.t('layout:can-continue'),
           duration: 2000,
         });
       }
@@ -64,8 +65,8 @@ export function useProjectWebSocket(projectId: number | null) {
           console.error("[WS] 解析错误:", e);
         }
         toast.error({
-          title: "数据格式错误",
-          message: "服务器返回了无法识别的数据，请刷新页面重试",
+          title: i18n.t('layout:data-format-error'),
+          message: i18n.t('layout:unrecognizable-data'),
           duration: 3000,
         });
       }
@@ -76,12 +77,12 @@ export function useProjectWebSocket(projectId: number | null) {
         console.error("[WS] 连接错误:", error);
       }
       toast.error({
-        title: "无法连接到服务器",
-        message: "请检查网络连接，或稍后重试",
+        title: i18n.t('layout:unable-to-connect'),
+        message: i18n.t('layout:check-network'),
         duration: 0,
         actions: [
           {
-            label: "重新连接",
+            label: i18n.t('layout:reconnect'),
             onClick: () => {
               reconnectAttempts.current = 0;
               connect();
@@ -105,20 +106,20 @@ export function useProjectWebSocket(projectId: number | null) {
         }
 
         toast.warning({
-          title: "连接中断",
-          message: `正在重新连接 (尝试 ${reconnectAttempts.current}/${MAX_RECONNECT_ATTEMPTS})`,
+          title: i18n.t('layout:connection-interrupted'),
+          message: i18n.t('layout:reconnecting', { current: reconnectAttempts.current, max: MAX_RECONNECT_ATTEMPTS }),
           duration: RECONNECT_DELAY,
         });
 
         reconnectTimer.current = setTimeout(connect, RECONNECT_DELAY);
       } else {
         toast.error({
-          title: "连接失败",
-          message: "多次尝试后仍无法连接。请检查网络后刷新页面",
+          title: i18n.t('layout:connection-failed'),
+          message: i18n.t('layout:unable-to-connect-after-retries'),
           duration: 0,
           actions: [
             {
-              label: "刷新页面",
+              label: i18n.t('layout:refresh-page'),
               onClick: () => window.location.reload(),
             },
           ],
@@ -269,7 +270,7 @@ function handleWsEvent(event: WsEvent, store: ReturnType<typeof useEditorStore.g
         id: generateMessageId(),
         agent: "system",
         role: "info",
-        content: `已确认，继续执行...`,
+        content: i18n.t('editor:confirmed-continue'),
         timestamp: new Date().toISOString(),
       });
       break;
@@ -293,13 +294,13 @@ function handleWsEvent(event: WsEvent, store: ReturnType<typeof useEditorStore.g
         id: generateMessageId(),
         agent: "system",
         role: "error",
-        content: `生成失败: ${event.data.error}`,
+        content: `${i18n.t('layout:generation-failed')}: ${event.data.error}`,
         timestamp: new Date().toISOString(),
       });
       // 显示 Toast 通知
       toast.error({
-        title: "生成失败",
-        message: (event.data.error as string) || "未知错误",
+        title: i18n.t('layout:generation-failed'),
+        message: (event.data.error as string) || i18n.t('common:unknown-error'),
         duration: 5000,
       });
       break;
@@ -309,8 +310,8 @@ function handleWsEvent(event: WsEvent, store: ReturnType<typeof useEditorStore.g
         console.error("[WS] 服务器错误:", event.data);
       }
       toast.error({
-        title: "服务器错误",
-        message: (event.data.message as string) || "发生未知错误",
+        title: i18n.t('layout:server-error'),
+        message: (event.data.message as string) || i18n.t('layout:unknown-error-occurred'),
         details: import.meta.env.DEV ? (event.data.code as string) : undefined,
       });
       break;

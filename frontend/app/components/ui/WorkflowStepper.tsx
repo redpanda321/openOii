@@ -6,19 +6,20 @@ import {
 } from "@heroicons/react/24/outline";
 import type { WorkflowStage } from "~/types";
 import { clsx } from "clsx";
+import { useTranslation } from "react-i18next";
 
 interface Step {
   id: WorkflowStage;
   name: string;
-  label: string;
+  labelKey: string;
   Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
 const steps: Step[] = [
-  { id: "ideate", name: "Ideate", label: "1. 构思", Icon: LightBulbIcon },
-  { id: "visualize", name: "Visualize", label: "2. 可视化", Icon: EyeIcon },
-  { id: "animate", name: "Animate", label: "3. 动画", Icon: SparklesIcon },
-  { id: "deploy", name: "Deploy", label: "4. 完成!", Icon: RocketLaunchIcon },
+  { id: "ideate", name: "Ideate", labelKey: "step-ideate", Icon: LightBulbIcon },
+  { id: "visualize", name: "Visualize", labelKey: "step-visualize", Icon: EyeIcon },
+  { id: "animate", name: "Animate", labelKey: "step-animate", Icon: SparklesIcon },
+  { id: "deploy", name: "Deploy", labelKey: "step-deploy", Icon: RocketLaunchIcon },
 ];
 
 interface WorkflowStepperProps {
@@ -32,6 +33,7 @@ export function WorkflowStepper({
   isGenerating = false,
   className,
 }: WorkflowStepperProps) {
+  const { t } = useTranslation('editor');
   const currentStepIndex = steps.findIndex((step) => step.id === currentStage);
 
   return (
@@ -73,7 +75,7 @@ export function WorkflowStepper({
                   isCurrent ? "text-primary" : "text-base-content/60"
                 )}
               >
-                {step.label}
+                {t(step.labelKey)}
               </span>
             </li>
           );

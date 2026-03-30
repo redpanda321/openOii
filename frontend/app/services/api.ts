@@ -1,4 +1,5 @@
-import { ApiError } from "~/types/errors";
+﻿import { ApiError } from "~/types/errors";
+import i18n from '~/i18n';
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:18765";
 const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN || "";
@@ -69,7 +70,7 @@ async function fetchApi<T>(
       if (!res.ok) {
         throw new ApiError({
           code: "INVALID_RESPONSE",
-          message: "服务器返回了无效的响应格式",
+          message: i18n.t('common:invalid-response'),
           status: res.status,
           request: {
             method: options?.method || "GET",
@@ -87,7 +88,7 @@ async function fetchApi<T>(
       const errorData = errorObj.error || {};
       throw new ApiError({
         code: errorData.code || "API_ERROR",
-        message: errorData.message || res.statusText || "请求失败",
+        message: errorData.message || res.statusText || i18n.t('common:request-failed'),
         status: res.status,
         details: errorData.details as Record<string, unknown> | undefined,
         request: {
@@ -108,7 +109,7 @@ async function fetchApi<T>(
     // 网络错误或其他错误
     throw new ApiError({
       code: "NETWORK_ERROR",
-      message: "网络连接失败，请检查您的网络设置",
+      message: i18n.t('common:network-error'),
       details: { originalError: String(error) },
       request: {
         method: options?.method || "GET",
