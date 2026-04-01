@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useParentMessages } from "./hooks/useParentMessages";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { lazy, Suspense } from "react";
 
@@ -28,6 +29,8 @@ const queryClient = new QueryClient({
 });
 
 export function App() {
+  useParentMessages();
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>

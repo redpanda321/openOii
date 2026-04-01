@@ -1,5 +1,6 @@
 ﻿import { ApiError } from "~/types/errors";
 import i18n from '~/i18n';
+import { useAuthStore } from '~/stores/authStore';
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:18765";
 const ADMIN_TOKEN = import.meta.env.VITE_ADMIN_TOKEN || "";
@@ -47,11 +48,14 @@ async function fetchApi<T>(
   options?: RequestInit
 ): Promise<T> {
   try {
+    const authToken = useAuthStore.getState().token;
+
     const res = await fetch(`${API_BASE}${endpoint}`, {
       ...options,
       headers: {
         "Content-Type": "application/json",
         ...(ADMIN_TOKEN ? { "X-Admin-Token": ADMIN_TOKEN } : {}),
+        ...(authToken ? { "Authorization": `Bearer ${authToken}` } : {}),
         ...options?.headers,
       },
     });

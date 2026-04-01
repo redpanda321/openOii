@@ -32,6 +32,7 @@ class ProjectRead(BaseModel):
     status: str
     created_at: datetime
     updated_at: datetime
+    hanggent_user_id: int | None = None
 
 
 class ProjectListRead(BaseModel):
@@ -77,42 +78,3 @@ class CharacterUpdate(BaseModel):
 
 class RegenerateRequest(BaseModel):
     type: Literal["image", "video"]
-
-
-class GenerateRequest(BaseModel):
-    seed: int | None = None
-    notes: str | None = None
-
-
-class AgentRunRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    project_id: int
-    status: str
-    current_agent: str | None
-    progress: float
-    error: str | None
-    resource_type: str | None  # 资源类型：character|shot|project
-    resource_id: int | None    # 资源 ID
-    created_at: datetime
-    updated_at: datetime
-
-
-class FeedbackRequest(BaseModel):
-    content: str = Field(min_length=1)
-    run_id: int | None = None
-
-
-class MessageRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    project_id: int
-    run_id: int | None
-    agent: str
-    role: str
-    content: str
-    progress: float | None
-    is_loading: bool
-    created_at: datetime

@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.api.v1.routes.auth import router as auth_router
 from app.api.v1.routes.characters import router as characters_router
 from app.api.v1.routes.config import router as config_router
 from app.api.v1.routes.generation import router as generation_router
@@ -8,6 +9,7 @@ from app.api.v1.routes.shots import router as shots_router
 from app.api.v1.routes.text import router as text_router
 
 api_router = APIRouter()
+api_router.include_router(auth_router, prefix="/auth", tags=["auth"])
 api_router.include_router(projects_router, prefix="/projects", tags=["projects"])
 api_router.include_router(generation_router, tags=["generation"])
 api_router.include_router(config_router, prefix="/config", tags=["config"])

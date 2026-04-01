@@ -20,6 +20,7 @@ class Project(SQLModel, table=True):
     status: str = Field(default="draft")
     created_at: datetime = Field(default_factory=utcnow)
     updated_at: datetime = Field(default_factory=utcnow)
+    hanggent_user_id: Optional[int] = Field(default=None, index=True)
 
     characters: List["Character"] = Relationship(
         back_populates="project",

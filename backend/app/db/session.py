@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import AsyncGenerator
 
 import asyncio
-from sqlalchemy import func, update
+from sqlalchemy import func, inspect as sa_inspect, text, update
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
 
@@ -40,10 +40,33 @@ async_session_maker: async_sessionmaker[AsyncSession] = async_sessionmaker(
 )
 
 
+async def _migrate_hanggent_user_id(conn) -> None:
+    """Add hanggent_user_id column to project table if missing (for existing installs)."""
+    def _check_column(sync_conn):
+        inspector = sa_inspect(sync_conn)
+        columns = [c["name"] for c in inspector.get_columns("project")]
+        return "hanggent_user_id" in columns
+
+    has_column = await conn.run_sync(_check_column)
+    if not has_column:
+        await conn.execute(text(
+            "ALTER TABLE project ADD COLUMN hanggent_user_id INTEGER"
+        ))
+        await conn.execute(text(
+            "CREATE INDEX IF NOT EXISTS ix_project_hanggent_user_id "
+            "ON project (hanggent_user_id)"
+        ))
+        await conn.commit()
+
+
 async def init_db() -> None:
     """Initialize database tables and cleanup stale runs."""
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
+
+    # Migrate existing tables
+    async with engine.connect() as conn:
+        await _migrate_hanggent_user_id(conn)
 
     async with async_session_maker() as session:
         from app.services.config_service import ConfigService

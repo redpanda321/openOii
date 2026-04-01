@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import AdminDep, SessionDep
+from app.api.deps import AdminDep, SessionDep, OptionalUserDep
 from app.models.agent_run import AgentMessage, AgentRun
 from app.models.message import Message
 from app.models.project import Character, Project, Shot
@@ -71,13 +71,18 @@ async def _delete_project_data(session: AsyncSession, project_id: int) -> None:
 
 
 @router.post("", response_model=ProjectRead, status_code=status.HTTP_201_CREATED)
-async def create_project(payload: ProjectCreate, session: AsyncSession = SessionDep):
+async def create_project(
+    payload: ProjectCreate,
+    session: AsyncSession = SessionDep,
+    current_user: dict | None = OptionalUserDep,
+):
     style = (payload.style or "").strip() or "anime"
     project = Project(
         title=payload.title,
         story=payload.story,
         style=style,
         status=payload.status or "draft",
+        hanggent_user_id=current_user["user_id"] if current_user else None,
     )
     session.add(project)
     await session.commit()
@@ -86,8 +91,14 @@ async def create_project(payload: ProjectCreate, session: AsyncSession = Session
 
 
 @router.get("", response_model=ProjectListRead)
-async def list_projects(session: AsyncSession = SessionDep):
-    res = await session.execute(select(Project).order_by(Project.created_at.desc()))
+async def list_projects(
+    session: AsyncSession = SessionDep,
+    user_id: int | None = None,
+):
+    query = select(Project).order_by(Project.created_at.desc())
+    if user_id is not None:
+        query = query.where(Project.hanggent_user_id == user_id)
+    res = await session.execute(query)
     items = res.scalars().all()
     return {"items": [ProjectRead.model_validate(p) for p in items], "total": len(items)}
 
