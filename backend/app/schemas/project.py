@@ -78,3 +78,24 @@ class CharacterUpdate(BaseModel):
 
 class RegenerateRequest(BaseModel):
     type: Literal["image", "video"]
+
+
+class GenerateRequest(BaseModel):
+    notes: str | None = None
+
+
+class FeedbackRequest(BaseModel):
+    content: str
+
+
+class AgentRunRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    project_id: int
+    status: str
+    current_agent: str | None = None
+    progress: float = 0.0
+    error: str | None = None
+    created_at: datetime
+    updated_at: datetime
