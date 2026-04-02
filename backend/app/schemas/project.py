@@ -88,6 +88,20 @@ class FeedbackRequest(BaseModel):
     content: str
 
 
+class MessageRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    project_id: int
+    run_id: int | None = None
+    agent: str
+    role: str
+    content: str
+    progress: float | None = None
+    is_loading: bool = False
+    created_at: datetime
+
+
 class AgentRunRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
